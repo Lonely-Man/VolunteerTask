@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>审批记录管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="/resources/layui/css/layui.css" media="all" />
+    <link rel="stylesheet" href="/resources/css/public.css" media="all" />
+</head>
+<body class="childrenBody">
+    
+<table id="taskRecordTable" lay-filter="taskRecordTable"></table>
+<div>
+   <div id="taskRecordRowBar" style="display: none">
+        <button type="button" lay-event="viewHiProcess" class="layui-btn layui-btn-sm">查看</button>
+   </div>
+</div>
+<!-- 查看流程图弹出层开始 -->
+<div style="display: none;padding: 5px" id="viewSp">
+    <form action="" method="post" class="layui-form layui-form-pane"  lay-filter="dataFrm">
+        <div class="layui-form-item">
+            <label class="layui-form-label">请假标题</label>
+            <div class="layui-input-block">
+                <input type="hidden"   id="leaveId_show" disabled="disabled" class="layui-input">
+                <input type="text"   id="title_show" disabled="disabled" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">请假天数</label>
+                <div class="layui-input-inline">
+                    <input type="tel"   id="days_show"  disabled="disabled" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">请假时间</label>
+                <div class="layui-input-inline">
+                    <input type="text"  id="leavetime_show" disabled="disabled" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">请假原因</label>
+            <div class="layui-input-block">
+                <textarea disabled="disabled" id="content_show" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item" style="text-align: center;"  >
+            <div id="view"></div>
+        </div>
+    </form>
+    <table id="commentList" lay-filter="commentList"></table>
+</div>
+<!-- 查看流程图弹出层结束 -->
+
+
+<script type="text/javascript" src="/resources/layui/layui.js"></script>
+<script type="text/javascript">
+    layui.use(['jquery','form','table'],function(){
+        var $=layui.jquery;
+        var form=layui.form;
+        var table=layui.table;
+
+        //加载 数据
+        var tableIns=table.render({
+            elem: '#taskRecordTable'
+            ,url:'/workFlow/loadCurrentUserHistoryTask'
+            ,title: '审批记录数据表'
+            ,height:'full-20'
+            ,page: true
+            ,cols: [ [
+                 {field:'id', title:'任务ID',align:'center'}
+                ,{field:'processInstanceId', title:'流程实例ID',align:'center'}
+                ,{field:'processDefinitionId', title:'流程定义ID',align:'center'}
+                ,{field:'name', title:'请假模块',align:'center'}
+                ,{field:'startTime', title:'请假单开始时间',align:'center'}
+                ,{field:'endTime', title:'请假单结束时间',align:'center'}
+                ,{field:'assignee', title:'审批人',align:'center'}
+                ,{fixed: 'right', title:'操作', toolbar: '#taskRecordRowBar',align:'center'}
+            ] ]
+        });
+
+        //模糊查询
+        form.on("submit(doSearch)",function(data){
+            console.log(data);
+            tableIns.reload({
+                where:data.field,
+                page:{
+                    curr:1
+                }
+            });
+            return false;
+        });
+
+
+        //监听行工具条的事件
+        table.on("tool(taskRecordTable)",function(obj){
+            var data = obj.data; //获得当前行数据
+            switch(obj.event){
+                case 'viewHiProcess':
+                	viewHiProcess(data);//审批记录ID
+                    break;
+            };
+        });
+
+      //初始化表
+		function commenttable(id){
+        	table.render({
+                elem: '#commentList',
+                url : '/workFlow/loadCommentByLeaveBillId?id='+id,
+                cellMinWidth : 95,
+                height : "full-320",
+                id : "commentListTable",
+                cols : [ [
+                    {field: 'time', title: '批注时间', width:250,align:"center"},
+                    {field: 'userId', title: '批注人', width:250,align:"center"},
+                    {field: 'message', title: '批注内容', width:250, align:"center"}
+                ] ]
+            });
+        }
+        var mainIndex;
+
+        //弹出查看层
+        function viewHiProcess(d) {
+            mainIndex=layer.open({
+                type:1,
+                content:$("#viewSp"),
+                area:['800px','600px'],
+                title:'修改审批记录',
+                success:function(res){
+                    $.post("/workFlow/loadBusinessKeyByProcessInstanceId",{processInstanceId:d.processInstanceId},function(res){
+                        $("#leaveId_show").val(res.id);
+                        $("#title_show").val(res.title);
+                        $("#days_show").val(res.days);
+                        $("#leavetime_show").val(res.leavetime);
+                        $("#content_show").val(res.content);
+                        commenttable(res.id);
+                    })
+                    
+
+                }
+            });
+
+        }
+    });
+</script>
+</body>
+</html>

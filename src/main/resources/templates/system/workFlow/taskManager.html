@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>待办任务管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="/resources/layui/css/layui.css" media="all" />
+    <link rel="stylesheet" href="/resources/css/public.css" media="all" />
+</head>
+
+<body class="childrenBody">
+    <form action="" method="post" id="searchFrm" lay-filter="searchFrm" class="layui-form layui-form-pane" >
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="text-align: center;">
+                <button type="button" class="layui-btn" lay-submit="" lay-filter="doSearch"><span class="layui-icon layui-icon-search"></span>刷新</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- 数据表格开始-->
+    <div>
+        <table class="layui-hide" id="taskTable" lay-filter="taskTable"></table>
+    </div>
+    <!-- 数据表格结束-->
+
+    <!--右边栏按钮开始-->
+    <script type="text/html" id="taskRowBar">
+        <button type="button" lay-event="toDoTask" class="layui-btn layui-btn-sm">办理任务</button>
+        <button type="button" lay-event="viewProcessByTaskId" class="layui-btn layui-btn-sm layui-btn-danger">查看流程图</button>
+    </script>
+    <!--右边栏按钮结束-->
+
+    <!-- 查看流程图弹出层开始 -->
+    <div style="display: none;padding: 5px" id="addOrUpdateDiv">
+        <form action="" method="post" class="layui-form layui-form-pane" id="dataFrm" lay-filter="dataFrm">
+            <div class="layui-form-item">
+                <label class="layui-form-label">请假标题</label>
+                <div class="layui-input-block">
+                    <input type="hidden"  name="leaveId"  id="leaveId" disabled="disabled" class="layui-input">
+                    <input type="text" name="title"  id="title" disabled="disabled" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">请假天数</label>
+                <div class="layui-input-inline">
+                    <input type="tel" name="days"  id="days"  disabled="disabled" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">请假时间</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="leavetime"  id="leavetime" disabled="disabled" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">请假原因</label>
+                <div class="layui-input-block">
+                    <textarea disabled="disabled" name="content" id="content" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">批注</label>
+                <div class="layui-input-block">
+                    <textarea placeholder="请输入批注内容"  name="comment" id="comment" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item" style="text-align: center;"  >
+				<div id="view"></div>
+            </div>
+        </form>
+        <table id="commentList" lay-filter="commentList"></table>
+    </div>
+    <!-- 查看流程图弹出层结束 -->
+    
+<script id="demo" type="text/html">
+  {{#  layui.each(d.list, function(index, item){ }}
+  	<input type="button" value={{ d.list[index] }} id="dotask" class="layui-btn dotask" />
+  {{#  }); }}
+</script>
+
+<script type="text/javascript" src="/resources/layui/layui.js"></script>
+<script type="text/javascript">
+    layui.use(['jquery','form','layer','table','laytpl'],function(){
+        var $=layui.jquery;
+        var form=layui.form;
+        var layer=layui.layer;
+        var table=layui.table;
+        var laytpl = layui.laytpl;
+        
+        
+        
+        //加载 数据
+        var tableIns=table.render({
+            elem: '#taskTable'
+            ,url:'/workFlow/loadCurrentUserTask'
+            ,toolbar: '#taskToolBar' //开启头部工具栏，并为其绑定左侧模板
+            ,title: '待办任务数据表'
+            ,height:'full-220'
+            ,page: true
+            ,cols:  [ [
+                {type: "checkbox", fixed:"left", width:50},
+                {field: 'id', title: '任务ID', minWidth:100, align:"center"},
+                {field: 'name', title: '待办任务名称', minWidth:100, align:"center"},
+                {field: 'createTime', title: '创建时间', minWidth:100, align:"center"},
+                {field: 'assignee', title: '办理人',  align:'center'},
+                {title: '操作', minWidth:175, templet:'#taskRowBar',fixed:"right",align:"center"}
+            ] ]
+        });
+		
+        //初始化表
+        function initCommentTable(data){
+	        var commentTableIns = table.render({
+	            elem: '#commentList',
+	            url : '/workFlow/loadAllCommentByTaskId?taskId='+data.id,
+	            cellMinWidth : 95,
+	            height : "full-320",
+	            id : "commentListTable",
+	            cols : [ [
+	                {field: 'time', title: '批注时间', width:250,align:"center"},
+	                {field: 'userId', title: '批注人', width:250,align:"center"},
+	                {field: 'message', title: '批注内容', width:250, align:"center"}
+	            ] ]
+	        });
+        }
+
+        //模糊查询
+        form.on("submit(doSearch)",function(data){
+            tableIns.reload({
+                where:data.field,
+                page:{
+                    curr:1
+                }
+            });
+            return false;
+        });
+
+        //监听行工具条的事件
+        table.on("tool(taskTable)",function(obj){
+            var data = obj.data; //获得当前行数据
+            switch(obj.event){
+                case 'toDoTask':
+                    toDoTask(data);
+                    break;
+                case 'viewProcessByTaskId':
+                    viewProcessByTaskId(data);
+                    break;
+            };
+        });
+
+
+
+        var mainIndex;
+        var url;
+        var currentTaskId;
+        //打开添加的弹出层
+        function toDoTask(data){
+            mainIndex=layer.open({
+                type:1,
+                content:$("#addOrUpdateDiv"),
+                area:['800px','600px'],
+                title:'办理任务',
+                success:function(){
+                    $.post("/workFlow/queryLeaveBillByTaskId",{taskId:data.id},function (res) {
+                        $("#leaveId").val(res.id);
+                        $("#title").val(res.title);
+                        $("#days").val(res.days);
+                        $("#leavetime").val(res.leavetime);
+                        $("#content").val(res.content);
+                    });
+                    $.post("/workFlow/loadOutComeByTaskId",{taskId:data.id},function (res) {
+               			var data = res;
+      	        		var getTpl = demo.innerHTML
+      	        		,view = document.getElementById('view');
+      	        		laytpl(getTpl).render(data, function(html){
+      	        		  view.innerHTML = html;
+      	        		});
+                    	
+                    });
+                    initCommentTable(data);
+                    currentTaskId = data.id;
+                }
+            });
+        }
+
+        //监听按钮时间 .class
+//         $("#dotask").click(function (data) {
+//             var outcome = this.value;//拿到监听按钮的值
+//             console.log(outcome);
+//             alert(outcome);
+//             // $.post("/workFlow/completeTask",{taskId:})
+//         })
+		//未来元素 必须这样写监听事件
+          $(document).on('click', '.dotask',function(data){
+              var comment = $("#comment").val();
+        	  var outcome = this.value;//拿到监听按钮的值
+              var taskId = currentTaskId;
+              var id = $("#leaveId").val();;
+
+              $.post("/workFlow/completeTask", {
+                  taskId:taskId,
+                  outcome:outcome,
+                  id:id,
+                  comment:comment},function(data){
+                  layer.msg(data.msg);
+                  //关闭部署的弹出层
+                  layer.close(mainIndex);
+                  //刷新页面的table
+                  tableIns.reload();
+              })
+
+        	  
+          })
+
+
+        //查看流程图
+        function viewProcessByTaskId(d){
+            mainIndex=layer.open({
+                type:2,
+                content:'/sys/toViewProcessImage',
+                area:['500px','600px'],
+                title:'查看'+d.name+'流程图',
+                success:function(layero, index){
+                	//通过session传值 
+                	sessionStorage.setItem('taskId', d.id);
+                }
+            });
+        }
+
+    });
+</script>
+</body>
+</html>
