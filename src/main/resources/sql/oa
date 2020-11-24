@@ -1,0 +1,816 @@
+/*
+SQLyog Enterprise v12.09 (64 bit)
+MySQL - 5.5.62 : Database - oa
+*********************************************************************
+*/
+
+
+/*!40101 SET NAMES utf8 */;
+
+/*!40101 SET SQL_MODE=''*/;
+
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`oa` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
+
+USE `oa`;
+
+/*Table structure for table `act_evt_log` */
+
+DROP TABLE IF EXISTS `act_evt_log`;
+
+CREATE TABLE `act_evt_log` (
+  `LOG_NR_` bigint(20) NOT NULL AUTO_INCREMENT,
+  `TYPE_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `PROC_DEF_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `PROC_INST_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `EXECUTION_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `TASK_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `TIME_STAMP_` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `USER_ID_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `DATA_` longblob,
+  `LOCK_OWNER_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `LOCK_TIME_` timestamp NULL DEFAULT NULL,
+  `IS_PROCESSED_` tinyint(4) DEFAULT '0',
+  PRIMARY KEY (`LOG_NR_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_evt_log` */
+
+/*Table structure for table `act_ge_bytearray` */
+
+DROP TABLE IF EXISTS `act_ge_bytearray`;
+
+CREATE TABLE `act_ge_bytearray` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `REV_` int(11) DEFAULT NULL,
+  `NAME_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `DEPLOYMENT_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `BYTES_` longblob,
+  `GENERATED_` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`ID_`),
+  KEY `ACT_FK_BYTEARR_DEPL` (`DEPLOYMENT_ID_`),
+  CONSTRAINT `ACT_FK_BYTEARR_DEPL` FOREIGN KEY (`DEPLOYMENT_ID_`) REFERENCES `act_re_deployment` (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_ge_bytearray` */
+
+insert  into `act_ge_bytearray`(`ID_`,`REV_`,`NAME_`,`DEPLOYMENT_ID_`,`BYTES_`,`GENERATED_`) values ('2',1,'Leavebill.bpmn','1','<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:omgdc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:omgdi=\"http://www.omg.org/spec/DD/20100524/DI\" typeLanguage=\"http://www.w3.org/2001/XMLSchema\" expressionLanguage=\"http://www.w3.org/1999/XPath\" targetNamespace=\"http://www.activiti.org/test\">\n  <process id=\"Leavebill\" name=\"Leavebill\" isExecutable=\"true\">\n    <startEvent id=\"startevent1\" name=\"Start\"></startEvent>\n    <endEvent id=\"endevent1\" name=\"End\"></endEvent>\n    <userTask id=\"usertask1\" name=\"提交申请\" activiti:assignee=\"#{username}\"></userTask>\n    <userTask id=\"usertask2\" name=\"审批【上级领导】\">\n      <extensionElements>\n        <activiti:taskListener event=\"create\" class=\"com.sxt.sys.listener.TaskListenerImpl\"></activiti:taskListener>\n      </extensionElements>\n    </userTask>\n    <userTask id=\"usertask3\" name=\"审批【上上级领导】\">\n      <extensionElements>\n        <activiti:taskListener event=\"create\" class=\"com.sxt.sys.listener.TaskListenerImpl\"></activiti:taskListener>\n      </extensionElements>\n    </userTask>\n    <sequenceFlow id=\"flow1\" sourceRef=\"startevent1\" targetRef=\"usertask1\"></sequenceFlow>\n    <sequenceFlow id=\"flow2\" name=\"提交\" sourceRef=\"usertask1\" targetRef=\"usertask2\">\n      <conditionExpression xsi:type=\"tFormalExpression\"><![CDATA[${outcome==\'提交\'}]]></conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"flow3\" name=\"同意\" sourceRef=\"usertask2\" targetRef=\"usertask3\">\n      <conditionExpression xsi:type=\"tFormalExpression\"><![CDATA[${outcome==\'同意\'}]]></conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"flow4\" name=\"同意\" sourceRef=\"usertask3\" targetRef=\"endevent1\">\n      <conditionExpression xsi:type=\"tFormalExpression\"><![CDATA[${outcome==\'同意\'}]]></conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"flow5\" name=\"驳回\" sourceRef=\"usertask2\" targetRef=\"usertask1\">\n      <conditionExpression xsi:type=\"tFormalExpression\"><![CDATA[${outcome==\'驳回\'}]]></conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"flow6\" name=\"驳回\" sourceRef=\"usertask3\" targetRef=\"usertask1\">\n      <conditionExpression xsi:type=\"tFormalExpression\"><![CDATA[${outcome==\'驳回\'}]]></conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"flow7\" name=\"放弃\" sourceRef=\"usertask1\" targetRef=\"endevent1\">\n      <conditionExpression xsi:type=\"tFormalExpression\"><![CDATA[${outcome==\'放弃\'}]]></conditionExpression>\n    </sequenceFlow>\n  </process>\n  <bpmndi:BPMNDiagram id=\"BPMNDiagram_Leavebill\">\n    <bpmndi:BPMNPlane bpmnElement=\"Leavebill\" id=\"BPMNPlane_Leavebill\">\n      <bpmndi:BPMNShape bpmnElement=\"startevent1\" id=\"BPMNShape_startevent1\">\n        <omgdc:Bounds height=\"35.0\" width=\"35.0\" x=\"210.0\" y=\"30.0\"></omgdc:Bounds>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape bpmnElement=\"endevent1\" id=\"BPMNShape_endevent1\">\n        <omgdc:Bounds height=\"35.0\" width=\"35.0\" x=\"210.0\" y=\"350.0\"></omgdc:Bounds>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape bpmnElement=\"usertask1\" id=\"BPMNShape_usertask1\">\n        <omgdc:Bounds height=\"55.0\" width=\"105.0\" x=\"175.0\" y=\"90.0\"></omgdc:Bounds>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape bpmnElement=\"usertask2\" id=\"BPMNShape_usertask2\">\n        <omgdc:Bounds height=\"55.0\" width=\"105.0\" x=\"175.0\" y=\"170.0\"></omgdc:Bounds>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape bpmnElement=\"usertask3\" id=\"BPMNShape_usertask3\">\n        <omgdc:Bounds height=\"61.0\" width=\"131.0\" x=\"162.0\" y=\"260.0\"></omgdc:Bounds>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNEdge bpmnElement=\"flow1\" id=\"BPMNEdge_flow1\">\n        <omgdi:waypoint x=\"227.0\" y=\"65.0\"></omgdi:waypoint>\n        <omgdi:waypoint x=\"227.0\" y=\"90.0\"></omgdi:waypoint>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge bpmnElement=\"flow2\" id=\"BPMNEdge_flow2\">\n        <omgdi:waypoint x=\"227.0\" y=\"145.0\"></omgdi:waypoint>\n        <omgdi:waypoint x=\"227.0\" y=\"170.0\"></omgdi:waypoint>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"14.0\" width=\"100.0\" x=\"200.0\" y=\"149.0\"></omgdc:Bounds>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge bpmnElement=\"flow3\" id=\"BPMNEdge_flow3\">\n        <omgdi:waypoint x=\"227.0\" y=\"225.0\"></omgdi:waypoint>\n        <omgdi:waypoint x=\"227.0\" y=\"260.0\"></omgdi:waypoint>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"14.0\" width=\"100.0\" x=\"193.0\" y=\"229.0\"></omgdc:Bounds>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge bpmnElement=\"flow4\" id=\"BPMNEdge_flow4\">\n        <omgdi:waypoint x=\"227.0\" y=\"321.0\"></omgdi:waypoint>\n        <omgdi:waypoint x=\"227.0\" y=\"350.0\"></omgdi:waypoint>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"14.0\" width=\"100.0\" x=\"193.0\" y=\"331.0\"></omgdc:Bounds>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge bpmnElement=\"flow5\" id=\"BPMNEdge_flow5\">\n        <omgdi:waypoint x=\"280.0\" y=\"197.0\"></omgdi:waypoint>\n        <omgdi:waypoint x=\"349.0\" y=\"197.0\"></omgdi:waypoint>\n        <omgdi:waypoint x=\"349.0\" y=\"117.0\"></omgdi:waypoint>\n        <omgdi:waypoint x=\"280.0\" y=\"117.0\"></omgdi:waypoint>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"14.0\" width=\"100.0\" x=\"319.0\" y=\"157.0\"></omgdc:Bounds>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge bpmnElement=\"flow6\" id=\"BPMNEdge_flow6\">\n        <omgdi:waypoint x=\"162.0\" y=\"290.0\"></omgdi:waypoint>\n        <omgdi:waypoint x=\"117.0\" y=\"289.0\"></omgdi:waypoint>\n        <omgdi:waypoint x=\"117.0\" y=\"195.0\"></omgdi:waypoint>\n        <omgdi:waypoint x=\"117.0\" y=\"117.0\"></omgdi:waypoint>\n        <omgdi:waypoint x=\"175.0\" y=\"117.0\"></omgdi:waypoint>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"14.0\" width=\"100.0\" x=\"91.0\" y=\"201.0\"></omgdc:Bounds>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge bpmnElement=\"flow7\" id=\"BPMNEdge_flow7\">\n        <omgdi:waypoint x=\"175.0\" y=\"117.0\"></omgdi:waypoint>\n        <omgdi:waypoint x=\"54.0\" y=\"117.0\"></omgdi:waypoint>\n        <omgdi:waypoint x=\"54.0\" y=\"367.0\"></omgdi:waypoint>\n        <omgdi:waypoint x=\"210.0\" y=\"367.0\"></omgdi:waypoint>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"14.0\" width=\"100.0\" x=\"31.0\" y=\"230.0\"></omgdc:Bounds>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n    </bpmndi:BPMNPlane>\n  </bpmndi:BPMNDiagram>\n</definitions>',0),('3',1,'Leavebill.png','1','PNG\r\n\Z\n\0\0\0\rIHDR\0\0n\0\0\0\0\0M56\0\0.IDATx}l[}q!g&X\rjmhv#D[k]4m% K hXj[lH<,L}ʈ\r8J4ɴ&4vؖNnN8vY%J:#2puxΗ|@I>G>\0\0gz\0\0\0F\0\0\0\04(\0)D)\0\0M!J\0h\nQ\n\0@SR\0\0B\0\0\0\04(\0)D)\0\0M!J\0h\nQ\n\0@SR\0\0B\0\0\0\04(\0)D)\0\0M!J\0h\nQ\n\0@SR\0\0B\0\0\0\04(\0)D),8N*ڹsg,FWd.3=@\0Q\nՑt{彯^|Ǉ7nܘH$L\0RdzzZ_zՑ9np8<11az\0z\ZQ\n[\\ԗ+hi>2iӦ۷;cz\0(\Z\Z\Z+DK~Z_fYӛ0Lƍd9>߫דdLoC0}=|O4^\0F¤f׭gc[R3==[zvmz\0=|dQz4/!JaF*b-b=FGGMo\"^AH$RKH00\0zQ\nr\\rX6l4\0zQ\nD<ok>k\rR}ݻw5J_J$1\0zQ\nѨ7oN>}A\n\'0M/)+3W\rR000pF>No\0@Pg\'N\0E@0 g\Zܰa\rR0::#_kk޶˦7@O Ja@&	mq\n\'0ytej?@g0~Mo\"^A}R}Izl6kz\n$ntD)L/~qlNX~05e\0zQ\nr܆\rZG޿sӦ7@o!JaX:i׸Ͽ\rsR7==&8:Q\0FB.۴ic=/.\n+3WSgMoE(瞐F~r<䑯\06=|\0(];_IYWnlL&cz\0zQ\n+T*ׯ_w+d2˙&\0,!J!UC\0RȠGM\0=AhO(`-d JXR\0֢=AhO(`-d JXR\0֢=AhO(`-d JXR\0֢=AhO(`-L&up8owqG:6=4\0XF^=\\_͛7R)CeD)8Κ5kJstݺu4˙\Z\0,#JaG}tժUn>æ\0 Jakst֭`P_\0܂(۷zjhߒQ\nlRR*Rfu\Z\0v\"J!o\0Z\'xq\'L\r\rE\"`0X*]X,H$x)2D)j\ZstϞ=/{|7Koccc۶mD\"D)^x|pp칳s9.A9l`t>,U\r6d2ӇyD)Bޠ/m\0Rb|||pCo|wzA`Qes3딟x+R,K$x<?ͭ?r{T7>R,bcr;K,YulV}_GK7??:25M:\0&X\nN8Z,}9Euy^]Sה_>wۯn7v>Ϊ7TQՏ~zpazk@ `0(Ų/K5ť?~?w~RW强W9^:Z!JgzxSCWҟ^Wr>}g	j+oOQ\n8Z\0ZuzwF啚\rsO_G;:Zvߞ*q\0,+eOwn\'~vڏЗnCGSE=e8̹?.9KWnҿkPjfV]]Ce\"JG2	UL9}m?x<3?xoVuqV0ꡲT@`YYF6oz퍷OONL=y?=3恣oN;y_<gzH#JAB^*~!?ou\'WvǞ*q\0,+DE\"JG(]xRz(z-\0\nQUo@`Y!Jߥ-qL&3Lo4K[cW&Dio9yd+wyXwҖDi.җTϿI](-vm.zOӥlGk.{Aǒ>WmQ٣p݁@u@65ptQsts/\ro\nQN;]sCz8?oh齗N6nMp\0m\';Ju\0LLLܹ3r\\^ʃ,,oGkp>G۷EeϽygN=est	Q4b_Irk@C_QJϵ*{z]Պ<n;Q=}>p;8~g>h>T\0Ei6-d-)vP(|EL&wys容\"ު/Vve+uU_Jw85k<S:ş\04FX>}5HpS|E;Ϛ+)ǳewYqo]n٩/>O;{GZCHR}%Ǟ$O&5lj\\YVbd]vei*Ha<whhH@\0DnLgR_ț3ȼZ+ޮ-޴5}Z@iorr@\0yĴ7ʝR7vx\\5@+U[gе/\n]N2Z@*bG A/(w@W]-n۲i2}ZfǎG#Dqӣh(wUfU\nklmZq]ˤi}ajz0Z@60=\Z|!oNnixܷ뵖\\c@Ӈ> 	J_țSTeQs@\0[QUouYD\'6x(U 77#aq$UouYf2\rP-@joR_M(U3\0IL~\'Y/Di/xo0aDjY/DT%(}[	#zV\Z| ~T]%(}[	#zV\Z|0|,.*YGُ\"LѳZ^T?wKGdq&Y-k###\'YO\'Cb[8F5u:NXlퟬ0N=\r~5O[Z;oLѳZǉD>79/J+ݫ/sZ;oLѳZt8|O:RjU:G?0}By$`B?99tdϔ:JUV*T(.B[F;xqgf_Rj;ۡX,o>Dm$0aDjу&&&?\Z>94tNSӇ@	0g[^i3[.&Y-zVaOv{	#zVUؓ\"`բod\'0g[=Im.&Y-zVaOv{	#zV|/{Uǒ+\n\"`բ߼(b.Z\rE=EyW+%BU@]LѳZᑋ퓞ݓF0g7J\"`բ<?u\n\"`բ<\ZwK|+ڄ\rE=EPs_jM&Y-zͫҲnîx\Z&Y-zx\"\\6	zw,{	#zV|Dii2Է@87;#Nb}3Q\n	#zV|P,{vOj=\\峑7oNR˕g-Q.Q\n4O=E8q֬YS׭[MsYdUL-Quy\0~0gG]j?A٥Z[o}	#zV%֮][̉[A}jzD<	#zV%۷zj\'(%Kfj\"ZLѳZe˖buj]_xD)V&Y-zfzO\ZoW<VF=x\'=͑J\"`բ\n/GI&CCCH$z_t1zbD\"/~&`բ?>>#D={^޻s|ovƶmۦTD@	0gx<>88xٹUZ޿Ul6k@0E=%^h83?R߰aC&1}By$`G9zi>\\m!0aDjq7?P~]0}ZOy%`ղ8N0<w>N_^*0aDjYO$x<?ͭ?r{T7[8F5X,6/轃T̂z+^Ufg_˯ΩuԫMtCnx#Spk1Y-`	#zV\Z|(:qh~jg.ϫKsR_nՍYu8ԼO.L`\\Lu	0g|~~Xzҷ>ݿzJ]WR^zk(͒u-J=e\rWҟ^Wr>}g	j+oOGmV&Y-k8?tA]ޝQyfgC}􎇧ݷJQh+F5B^v*}z:|k׮Ȫ_}(=td=UݷE@[	0g0,]^J~7>vW}tCYumv\'ݷJQ^Q60=\n@-@t5x=*^`N_Ϭ6ޛU:=G]U:Lz=U2L04=\n@-@t58lo>NJ8zkz}S\'gGߜ<v[x{ܿ~Fx4\Z5=\n@-@t5B^*~!?ou\'WvǞ*YGyE;LD@ݧd\rzKQ^$GH\"SS-AqLD@ݧd\rzKQ6::cӣ\0D)Y/D{T%({(=}ajz 0Z>%k(}dex<H  O\Z|!JT%(2::}vӣ\0DD)Y\'J{3Jף(0-@t5Bj|e<^ Mr9}1\Zy^h O)iף]XxX+-XUJ{ձZzš.igbbbdd$ݱcg4I@קJ\Z|!0ves%foy.[I姵>obHcѣNRItOT\Z58W~mͥTިuTŪ>0<1}\0$S_ny\\֔.Sp˪|Onx}>zcc6}\0$S__U銷Kol-[w=]Fl0I@0ۧJjb޸VMFi\\t?d(M@d*me(So^!0θUi73+)һZSy/w>1>t\0L)D(]̸B2nT5T.qJ?V]IbUu`+C$-}5hկxϒ*n~⍛SX%TZ{axW]``6J&h\rWZ?Z~fߚOu<P\Z.tIӇIZZxߨ\nqjU͌)_$~z<TI#ֻLãӇIZ@ԥ|\\ֺQSUo:\0ZN@0է|FiinҷzKQrZ@TYzdjYBD)Q\nZ@\'TK)=JOR\0O\ZWDBI[2<ƧJS4M[2D)Y/DT%(h9-@t5@ pשJQrZ>%k`xde\0-\'SFc|H8\n>t\0LeQY~x8ɪJ<M:\0&	hҨg2PSםË8b-T`F/+ʈ%k\r\rEM4\0	hҨ;|nr_:FyW6W_rM4\0	hҨpt:4Ut9&&~`p0O@F.i:2gJ*+z*\nNL|`^h\Z8H䳉_g/)5ErL`,ѷM\"\0妑>xmbb\"_~н:MM\0v$[nF/:D*I\0ОDPу\n{\'=T`-It=x\'XK@{CE*I\0jo{l\rַDPуov{ޞ:wC]=T~9|vn\042YW¢{ɆO9=\'HIi Ms<\0X+-\rTT.=x|$}~\00sQZvRu+=T[]҇\0\0=J梟PTjV\0\0u誴(,(@1V}Pу=R>_G$\0:GoT)j|\00ˊ\'xTу(b\0fu\r@YOQDPу3\r}Ȟ $Uؓ\0%=o$\0k	hO{[=	Zړ*zVaO$Uؓ\0%=o$\0k	hO{[=	Zړ*zVaO$qdR@ ;HӦ\04zi$z=soyT*ezh\0L@Fo8k֬)uk\\.gzh\0L@FoG}tժUn>æ\0E[bڵݺuk0ԗG\0E[b߾}W{2\Z[R\0Ec˖-(5=\0B@Fol6$`\'^t\ZUؓ\0%=qd2944D`7\0\'bDW\0F_4릯stϞ=/{|jslll۶mz@5}timחJx|pp칳s9}u:Pf;We[\ZŪ\r?|sY3oذ!ɘ>\0ȢF_UiT/G9zdM~F5ZJz3{Jo7Oz)\0]liIX2xqg[~ޛ%iKH$x~[\Z]7ޛ%iKƞbmwJYPoج:<3?+?99zQnw\Z#Sp\0-h,IX2P(tĴf.ϫKsR_nՍYu8ԼO.LGz)>\0ޛ%iKwWGumA.,}k~q_\'=ԕyu9.UNVҫTe\0m\rȒp-yu[p\\.wO \n{ȱR\r%\'0E7 K_+n-E邺pM;JΆ#}}t[O-/pYr2\0h9s[td8?Own\'~vڏЗnCGK5\\\0ZN݀8GQ%J/KUjGcwwG7UfQJ&`nn@`І_-eT`N_Ϭ6ޛU:=G]U:LzT%LA݀Q4VdxtTѓ_;_o:?So8䱓{ޗjD\0<ۢP$0=}8?Ai}џw_K-qs!J/QfK-(R+J-P(dz(H-g2\0d_-Eْ~&EܖހFGGwav(@-g2Zm\ro٬163@-v4H$bp\0(}2[]p&JsNO]luǙ5\rhxx8\Zr?t!J3@s\Zx0Wi!JIn:0R:Pљ$Jm.;l@+TH{6oalu@=)řt+sԼBg2Эm\ZP\nQzZzݽi~\rj?1U>@[45%RoKR,{ɔLMj^£pFK]qoy.[I姵o7\0-m\ZP\n}|I,/Py]?etj]gō@[4-Ōwy],Sp׫Le7]U*\'0i@+toXwV2Tv*ov\Z@[4Lj2u>JkiT~lR\0m\ZP\n}UL7\\qVr!^beۊU^O\0m!`nӀWtyZ7鱀XǪ+\\cë~ō@[4)*]f7|Kg30;Tu-@[4WL>7KGiL	Ϊ[@%sԼBU]f~/P-~W2-U4E7\0-m\ZP>\\\\<I-d[	4Mlq&Jܦ5ilq&Jܦ5(8n%`nӀW7(řt+sԼBN-d[	4קOP3V6\ry`O(řt+sԼh4㻍gI/B!\'RDiFFFXT)SO\'@[H)yL&uТz2RؖT*eD\0R(mK+u|%oh(j\0.R(m	q\"MN\\fB>\0\"J[%N)ΔQL|\0m$ i:2gJ]SPpb;RDik93<D>Hu6RSTk+docmh;)ED<G?F\ZWCTQ\nxQ&\0k	H)\0\'z(\0	hOP(N\0ОP\0,&=C8\r\0XL@{Bq\Z\0D4\0`1\ni\0b=\0\'z(\0	hOP(N\0Оݧci\0Z=~)ee|>D;\0\0\Z\'=CqʾUi]G\0\'zǨfo{ai\0Z=~>J+p9\r\0XK@{oūRw~Q8\r\0XL@{گ25~R\0]I@{rU\nhOP|l%Id xw֎\0! RdQ瞫͛7R\r\0& R5_t9f͚]n6r-:\04M@J,uG}tժU?p\0\0\Z\' vbnݺ5KU#[H)۷o4FQ-[@\0\n)E\"Ӏ\0\"J8\r\0XL@{&qRΝ;cXh4H$uQkt&ûwz\' \0GLLLlܸq-^\0f	R+3QOKxس/}ŭ{|pplI}[ 0E@~:==mzhl6[v1#_;u\\~V]x?>t\rS\0FH$211azhL&SMh4e/RIx<H$Lm8N蓻vڳ_uצq/:Gubhhѱgb>2_\\O$1Y\0z(MӡP(zTzݵ8\0=D@*K~-{Ӂ^@cdDرcQɤBgϝoI^M/\'\n?\'2H}KKrX?|jMo\"^!#JU}pskԭ5\n@gRmΝ<k\'H26UDk樮|n1%)J5(og\'O;+[W+߸qmkE6>>*:8v[1V^O\nU<T/(=uv\rv\0\"/JU7m:Ju,J~%f7nx\Ze0L<Jujz\0	{n\nUGMYo[W7}	\Z]wfg@ГNBP?;qQ%}\0\'k]tj~+_ɤ]yi) JgΜїh4ѵ_[Jp8ljJD՗n۶/<Jܵ򡡡o4^Dt:>{ejktӦMŕontQ\n3`17徨T<\0tQ\n3~^ͰM+R/W8^ntQ\ncFGGU̩ӧl޾}CRqFy+3Wׯ_ﮊgID)Ld2n6gϝwsT_\0:(a:_p M8X7@!Ja^*rM矯n+A0(n>wT_.uBCS26l!AD)C}E\"ICRqd235g0bwJ%R\0\0B\0\0\0\04(\0)pu_S\0\0\0\0IENDB`',0);
+
+/*Table structure for table `act_ge_property` */
+
+DROP TABLE IF EXISTS `act_ge_property`;
+
+CREATE TABLE `act_ge_property` (
+  `NAME_` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `VALUE_` varchar(300) COLLATE utf8_bin DEFAULT NULL,
+  `REV_` int(11) DEFAULT NULL,
+  PRIMARY KEY (`NAME_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_ge_property` */
+
+insert  into `act_ge_property`(`NAME_`,`VALUE_`,`REV_`) values ('next.dbid','17501',8),('schema.history','create(5.22.0.0)',1),('schema.version','5.22.0.0',1);
+
+/*Table structure for table `act_hi_actinst` */
+
+DROP TABLE IF EXISTS `act_hi_actinst`;
+
+CREATE TABLE `act_hi_actinst` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `PROC_DEF_ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `PROC_INST_ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `EXECUTION_ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `ACT_ID_` varchar(255) COLLATE utf8_bin NOT NULL,
+  `TASK_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `CALL_PROC_INST_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `ACT_NAME_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `ACT_TYPE_` varchar(255) COLLATE utf8_bin NOT NULL,
+  `ASSIGNEE_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `START_TIME_` datetime NOT NULL,
+  `END_TIME_` datetime DEFAULT NULL,
+  `DURATION_` bigint(20) DEFAULT NULL,
+  `TENANT_ID_` varchar(255) COLLATE utf8_bin DEFAULT '',
+  PRIMARY KEY (`ID_`),
+  KEY `ACT_IDX_HI_ACT_INST_START` (`START_TIME_`),
+  KEY `ACT_IDX_HI_ACT_INST_END` (`END_TIME_`),
+  KEY `ACT_IDX_HI_ACT_INST_PROCINST` (`PROC_INST_ID_`,`ACT_ID_`),
+  KEY `ACT_IDX_HI_ACT_INST_EXEC` (`EXECUTION_ID_`,`ACT_ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_hi_actinst` */
+
+insert  into `act_hi_actinst`(`ID_`,`PROC_DEF_ID_`,`PROC_INST_ID_`,`EXECUTION_ID_`,`ACT_ID_`,`TASK_ID_`,`CALL_PROC_INST_ID_`,`ACT_NAME_`,`ACT_TYPE_`,`ASSIGNEE_`,`START_TIME_`,`END_TIME_`,`DURATION_`,`TENANT_ID_`) values ('10002','Leavebill:1:4','10001','10001','startevent1',NULL,NULL,'Start','startEvent',NULL,'2020-08-11 10:29:49','2020-08-11 10:29:49',6,''),('10005','Leavebill:1:4','10001','10001','usertask1','10006',NULL,'提交申请','userTask','刘八','2020-08-11 10:29:49','2020-08-11 10:29:59',10916,''),('10011','Leavebill:1:4','10001','10001','usertask2','10012',NULL,'审批【上级领导】','userTask','王五','2020-08-11 10:29:59','2020-08-11 10:31:25',86672,''),('10016','Leavebill:1:4','10001','10001','usertask3','10017',NULL,'审批【上上级领导】','userTask','李四','2020-08-11 10:31:25','2020-08-19 09:52:38',688873654,''),('12502','Leavebill:1:4','12501','12501','startevent1',NULL,NULL,'Start','startEvent',NULL,'2020-08-19 09:51:25','2020-08-19 09:51:25',7,''),('12505','Leavebill:1:4','12501','12501','usertask1','12506',NULL,'提交申请','userTask','刘八','2020-08-19 09:51:25','2020-08-19 09:51:42',17660,''),('12511','Leavebill:1:4','12501','12501','usertask2','12512',NULL,'审批【上级领导】','userTask','王五','2020-08-19 09:51:42','2020-08-19 09:52:16',34321,''),('12516','Leavebill:1:4','5011','5011','usertask1','12517',NULL,'提交申请','userTask','刘八','2020-08-19 09:52:01','2020-08-19 09:53:17',76703,''),('12520','Leavebill:1:4','12501','12501','usertask3','12521',NULL,'审批【上上级领导】','userTask','李四','2020-08-19 09:52:16','2020-08-19 09:52:40',24670,''),('12525','Leavebill:1:4','10001','10001','endevent1',NULL,NULL,'End','endEvent',NULL,'2020-08-19 09:52:38','2020-08-19 09:52:38',0,''),('12528','Leavebill:1:4','12501','12501','endevent1',NULL,NULL,'End','endEvent',NULL,'2020-08-19 09:52:40','2020-08-19 09:52:40',0,''),('12531','Leavebill:1:4','2509','2509','endevent1',NULL,NULL,'End','endEvent',NULL,'2020-08-19 09:52:42','2020-08-19 09:52:42',0,''),('12538','Leavebill:1:4','7501','7501','usertask1','12539',NULL,'提交申请','userTask','王五','2020-08-19 09:52:50',NULL,NULL,''),('12542','Leavebill:1:4','5011','5011','endevent1',NULL,NULL,'End','endEvent',NULL,'2020-08-19 09:53:17','2020-08-19 09:53:17',0,''),('15','Leavebill:1:4','5','5','usertask2','16',NULL,'审批【上级领导】','userTask','王五','2020-08-09 09:24:49','2020-08-09 13:22:27',14258290,''),('15002','Leavebill:1:4','15001','15001','startevent1',NULL,NULL,'Start','startEvent',NULL,'2020-08-19 16:13:37','2020-08-19 16:13:37',7,''),('15005','Leavebill:1:4','15001','15001','usertask1','15006',NULL,'提交申请','userTask','刘八','2020-08-19 16:13:37','2020-08-19 16:14:07',30088,''),('15011','Leavebill:1:4','15001','15001','usertask2','15012',NULL,'审批【上级领导】','userTask','王五','2020-08-19 16:14:07','2020-08-19 16:14:42',35410,''),('15016','Leavebill:1:4','15001','15001','usertask3','15017',NULL,'审批【上上级领导】','userTask','李四','2020-08-19 16:14:42','2020-08-19 16:15:26',44668,''),('15021','Leavebill:1:4','15001','15001','endevent1',NULL,NULL,'End','endEvent',NULL,'2020-08-19 16:15:26','2020-08-19 16:15:26',0,''),('2503','Leavebill:1:4','5','5','usertask3','2504',NULL,'审批【上上级领导】','userTask','李四','2020-08-09 13:22:27','2020-08-09 14:26:23',3836894,''),('2508','Leavebill:1:4','5','5','endevent1',NULL,NULL,'End','endEvent',NULL,'2020-08-09 14:26:23','2020-08-09 14:26:23',0,''),('2511','Leavebill:1:4','2509','2509','startevent1',NULL,NULL,'Start','startEvent',NULL,'2020-08-09 14:26:48','2020-08-09 14:26:48',1,''),('2514','Leavebill:1:4','2509','2509','usertask1','2515',NULL,'提交申请','userTask','刘八','2020-08-09 14:26:48','2020-08-09 16:23:59',7031221,''),('5004','Leavebill:1:4','2509','2509','usertask2','5005',NULL,'审批【上级领导】','userTask','王五','2020-08-09 16:23:59','2020-08-09 16:24:27',28926,''),('5009','Leavebill:1:4','2509','2509','usertask3','5010',NULL,'审批【上上级领导】','userTask','李四','2020-08-09 16:24:27','2020-08-19 09:52:42',840495677,''),('5012','Leavebill:1:4','5011','5011','startevent1',NULL,NULL,'Start','startEvent',NULL,'2020-08-09 16:50:54','2020-08-09 16:50:54',2,''),('5015','Leavebill:1:4','5011','5011','usertask1','5016',NULL,'提交申请','userTask','刘八','2020-08-09 16:50:54','2020-08-09 16:52:53',119821,''),('5021','Leavebill:1:4','5011','5011','usertask2','5022',NULL,'审批【上级领导】','userTask','王五','2020-08-09 16:52:53','2020-08-19 09:52:01',838748752,''),('6','Leavebill:1:4','5','5','startevent1',NULL,NULL,'Start','startEvent',NULL,'2020-08-09 09:24:27','2020-08-09 09:24:27',8,''),('7502','Leavebill:1:4','7501','7501','startevent1',NULL,NULL,'Start','startEvent',NULL,'2020-08-10 13:07:39','2020-08-10 13:07:39',6,''),('7505','Leavebill:1:4','7501','7501','usertask1','7506',NULL,'提交申请','userTask','王五','2020-08-10 13:07:39','2020-08-10 13:08:20',41557,''),('7511','Leavebill:1:4','7501','7501','usertask2','7512',NULL,'审批【上级领导】','userTask','李四','2020-08-10 13:08:20','2020-08-19 09:52:50',765870656,''),('9','Leavebill:1:4','5','5','usertask1','10',NULL,'提交申请','userTask','刘八','2020-08-09 09:24:27','2020-08-09 09:24:49',22752,'');
+
+/*Table structure for table `act_hi_attachment` */
+
+DROP TABLE IF EXISTS `act_hi_attachment`;
+
+CREATE TABLE `act_hi_attachment` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `REV_` int(11) DEFAULT NULL,
+  `USER_ID_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `NAME_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `DESCRIPTION_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `TYPE_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `TASK_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `PROC_INST_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `URL_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `CONTENT_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `TIME_` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_hi_attachment` */
+
+/*Table structure for table `act_hi_comment` */
+
+DROP TABLE IF EXISTS `act_hi_comment`;
+
+CREATE TABLE `act_hi_comment` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `TYPE_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `TIME_` datetime NOT NULL,
+  `USER_ID_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `TASK_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `PROC_INST_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `ACTION_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `MESSAGE_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `FULL_MSG_` longblob,
+  PRIMARY KEY (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_hi_comment` */
+
+insert  into `act_hi_comment`(`ID_`,`TYPE_`,`TIME_`,`USER_ID_`,`TASK_ID_`,`PROC_INST_ID_`,`ACTION_`,`MESSAGE_`,`FULL_MSG_`) values ('10008','comment','2020-08-11 10:29:59','刘八','10006','10001','AddComment','[提交]希望领导批准','[提交]希望领导批准'),('10014','comment','2020-08-11 10:31:25','王五','10012','10001','AddComment','[同意]好的','[同意]好的'),('12','comment','2020-08-09 09:24:49','刘八','10','5','AddComment','[提交]希望领导批准','[提交]希望领导批准'),('12508','comment','2020-08-19 09:51:42','刘八','12506','12501','AddComment','[提交]1','[提交]1'),('12514','comment','2020-08-19 09:52:01','王五','5022','5011','AddComment','[驳回]','[驳回]'),('12518','comment','2020-08-19 09:52:16','王五','12512','12501','AddComment','[同意]加油','[同意]加油'),('12523','comment','2020-08-19 09:52:38','李四','10017','10001','AddComment','[同意]','[同意]'),('12526','comment','2020-08-19 09:52:40','李四','12521','12501','AddComment','[同意]','[同意]'),('12529','comment','2020-08-19 09:52:42','李四','5010','2509','AddComment','[同意]','[同意]'),('12536','comment','2020-08-19 09:52:50','李四','7512','7501','AddComment','[驳回]','[驳回]'),('12540','comment','2020-08-19 09:53:17','刘八','12517','5011','AddComment','[放弃]','[放弃]'),('15008','comment','2020-08-19 16:14:07','刘八','15006','15001','AddComment','[提交]','[提交]'),('15014','comment','2020-08-19 16:14:42','王五','15012','15001','AddComment','[同意]1','[同意]1'),('15019','comment','2020-08-19 16:15:26','李四','15017','15001','AddComment','[同意]1','[同意]1'),('2501','comment','2020-08-09 13:22:27','王五','16','5','AddComment','[同意]好好休息','[同意]好好休息'),('2506','comment','2020-08-09 14:26:23','李四','2504','5','AddComment','[同意]好','[同意]好'),('5001','comment','2020-08-09 16:23:59','刘八','2515','2509','AddComment','[提交]a','[提交]a'),('5007','comment','2020-08-09 16:24:27','王五','5005','2509','AddComment','[同意]好','[同意]好'),('5018','comment','2020-08-09 16:52:53','刘八','5016','5011','AddComment','[提交]','[提交]'),('7508','comment','2020-08-10 13:08:20','王五','7506','7501','AddComment','[提交]希望批准 ','[提交]希望批准\n');
+
+/*Table structure for table `act_hi_detail` */
+
+DROP TABLE IF EXISTS `act_hi_detail`;
+
+CREATE TABLE `act_hi_detail` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `TYPE_` varchar(255) COLLATE utf8_bin NOT NULL,
+  `PROC_INST_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `EXECUTION_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `TASK_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `ACT_INST_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `NAME_` varchar(255) COLLATE utf8_bin NOT NULL,
+  `VAR_TYPE_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `REV_` int(11) DEFAULT NULL,
+  `TIME_` datetime NOT NULL,
+  `BYTEARRAY_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `DOUBLE_` double DEFAULT NULL,
+  `LONG_` bigint(20) DEFAULT NULL,
+  `TEXT_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `TEXT2_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`ID_`),
+  KEY `ACT_IDX_HI_DETAIL_PROC_INST` (`PROC_INST_ID_`),
+  KEY `ACT_IDX_HI_DETAIL_ACT_INST` (`ACT_INST_ID_`),
+  KEY `ACT_IDX_HI_DETAIL_TIME` (`TIME_`),
+  KEY `ACT_IDX_HI_DETAIL_NAME` (`NAME_`),
+  KEY `ACT_IDX_HI_DETAIL_TASK_ID` (`TASK_ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_hi_detail` */
+
+insert  into `act_hi_detail`(`ID_`,`TYPE_`,`PROC_INST_ID_`,`EXECUTION_ID_`,`TASK_ID_`,`ACT_INST_ID_`,`NAME_`,`VAR_TYPE_`,`REV_`,`TIME_`,`BYTEARRAY_ID_`,`DOUBLE_`,`LONG_`,`TEXT_`,`TEXT2_`) values ('10004','VariableUpdate','10001','10001',NULL,'10002','username','string',0,'2020-08-11 10:29:49',NULL,NULL,NULL,'刘八',NULL),('10010','VariableUpdate','10001','10001',NULL,'10005','outcome','string',0,'2020-08-11 10:29:59',NULL,NULL,NULL,'提交',NULL),('10015','VariableUpdate','10001','10001',NULL,'10011','outcome','string',1,'2020-08-11 10:31:25',NULL,NULL,NULL,'同意',NULL),('12504','VariableUpdate','12501','12501',NULL,'12502','username','string',0,'2020-08-19 09:51:25',NULL,NULL,NULL,'刘八',NULL),('12510','VariableUpdate','12501','12501',NULL,'12505','outcome','string',0,'2020-08-19 09:51:42',NULL,NULL,NULL,'提交',NULL),('12515','VariableUpdate','5011','5011',NULL,'5021','outcome','string',1,'2020-08-19 09:52:01',NULL,NULL,NULL,'驳回',NULL),('12519','VariableUpdate','12501','12501',NULL,'12511','outcome','string',1,'2020-08-19 09:52:16',NULL,NULL,NULL,'同意',NULL),('12524','VariableUpdate','10001','10001',NULL,'10016','outcome','string',2,'2020-08-19 09:52:38',NULL,NULL,NULL,'同意',NULL),('12527','VariableUpdate','12501','12501',NULL,'12520','outcome','string',2,'2020-08-19 09:52:40',NULL,NULL,NULL,'同意',NULL),('12530','VariableUpdate','2509','2509',NULL,'5009','outcome','string',2,'2020-08-19 09:52:42',NULL,NULL,NULL,'同意',NULL),('12537','VariableUpdate','7501','7501',NULL,'7511','outcome','string',1,'2020-08-19 09:52:50',NULL,NULL,NULL,'驳回',NULL),('12541','VariableUpdate','5011','5011',NULL,'12516','outcome','string',2,'2020-08-19 09:53:17',NULL,NULL,NULL,'放弃',NULL),('14','VariableUpdate','5','5',NULL,'9','outcome','string',0,'2020-08-09 09:24:49',NULL,NULL,NULL,'提交',NULL),('15004','VariableUpdate','15001','15001',NULL,'15002','username','string',0,'2020-08-19 16:13:37',NULL,NULL,NULL,'刘八',NULL),('15010','VariableUpdate','15001','15001',NULL,'15005','outcome','string',0,'2020-08-19 16:14:07',NULL,NULL,NULL,'提交',NULL),('15015','VariableUpdate','15001','15001',NULL,'15011','outcome','string',1,'2020-08-19 16:14:42',NULL,NULL,NULL,'同意',NULL),('15020','VariableUpdate','15001','15001',NULL,'15016','outcome','string',2,'2020-08-19 16:15:26',NULL,NULL,NULL,'同意',NULL),('2502','VariableUpdate','5','5',NULL,'15','outcome','string',1,'2020-08-09 13:22:27',NULL,NULL,NULL,'同意',NULL),('2507','VariableUpdate','5','5',NULL,'2503','outcome','string',2,'2020-08-09 14:26:23',NULL,NULL,NULL,'同意',NULL),('2513','VariableUpdate','2509','2509',NULL,'2511','username','string',0,'2020-08-09 14:26:48',NULL,NULL,NULL,'刘八',NULL),('5003','VariableUpdate','2509','2509',NULL,'2514','outcome','string',0,'2020-08-09 16:23:59',NULL,NULL,NULL,'提交',NULL),('5008','VariableUpdate','2509','2509',NULL,'5004','outcome','string',1,'2020-08-09 16:24:27',NULL,NULL,NULL,'同意',NULL),('5014','VariableUpdate','5011','5011',NULL,'5012','username','string',0,'2020-08-09 16:50:54',NULL,NULL,NULL,'刘八',NULL),('5020','VariableUpdate','5011','5011',NULL,'5015','outcome','string',0,'2020-08-09 16:52:53',NULL,NULL,NULL,'提交',NULL),('7504','VariableUpdate','7501','7501',NULL,'7502','username','string',0,'2020-08-10 13:07:39',NULL,NULL,NULL,'王五',NULL),('7510','VariableUpdate','7501','7501',NULL,'7505','outcome','string',0,'2020-08-10 13:08:20',NULL,NULL,NULL,'提交',NULL),('8','VariableUpdate','5','5',NULL,'6','username','string',0,'2020-08-09 09:24:27',NULL,NULL,NULL,'刘八',NULL);
+
+/*Table structure for table `act_hi_identitylink` */
+
+DROP TABLE IF EXISTS `act_hi_identitylink`;
+
+CREATE TABLE `act_hi_identitylink` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `GROUP_ID_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `TYPE_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `USER_ID_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `TASK_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `PROC_INST_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`ID_`),
+  KEY `ACT_IDX_HI_IDENT_LNK_USER` (`USER_ID_`),
+  KEY `ACT_IDX_HI_IDENT_LNK_TASK` (`TASK_ID_`),
+  KEY `ACT_IDX_HI_IDENT_LNK_PROCINST` (`PROC_INST_ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_hi_identitylink` */
+
+insert  into `act_hi_identitylink`(`ID_`,`GROUP_ID_`,`TYPE_`,`USER_ID_`,`TASK_ID_`,`PROC_INST_ID_`) values ('10007',NULL,'participant','刘八',NULL,'10001'),('10013',NULL,'participant','王五',NULL,'10001'),('10018',NULL,'participant','李四',NULL,'10001'),('11',NULL,'participant','刘八',NULL,'5'),('12507',NULL,'participant','刘八',NULL,'12501'),('12513',NULL,'participant','王五',NULL,'12501'),('12522',NULL,'participant','李四',NULL,'12501'),('15007',NULL,'participant','刘八',NULL,'15001'),('15013',NULL,'participant','王五',NULL,'15001'),('15018',NULL,'participant','李四',NULL,'15001'),('17',NULL,'participant','王五',NULL,'5'),('2505',NULL,'participant','李四',NULL,'5'),('2510',NULL,'starter','李四',NULL,'2509'),('2516',NULL,'participant','刘八',NULL,'2509'),('5006',NULL,'participant','王五',NULL,'2509'),('5017',NULL,'participant','刘八',NULL,'5011'),('5023',NULL,'participant','王五',NULL,'5011'),('7507',NULL,'participant','王五',NULL,'7501'),('7513',NULL,'participant','李四',NULL,'7501');
+
+/*Table structure for table `act_hi_procinst` */
+
+DROP TABLE IF EXISTS `act_hi_procinst`;
+
+CREATE TABLE `act_hi_procinst` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `PROC_INST_ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `BUSINESS_KEY_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `PROC_DEF_ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `START_TIME_` datetime NOT NULL,
+  `END_TIME_` datetime DEFAULT NULL,
+  `DURATION_` bigint(20) DEFAULT NULL,
+  `START_USER_ID_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `START_ACT_ID_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `END_ACT_ID_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `SUPER_PROCESS_INSTANCE_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `DELETE_REASON_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `TENANT_ID_` varchar(255) COLLATE utf8_bin DEFAULT '',
+  `NAME_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`ID_`),
+  UNIQUE KEY `PROC_INST_ID_` (`PROC_INST_ID_`),
+  KEY `ACT_IDX_HI_PRO_INST_END` (`END_TIME_`),
+  KEY `ACT_IDX_HI_PRO_I_BUSKEY` (`BUSINESS_KEY_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_hi_procinst` */
+
+insert  into `act_hi_procinst`(`ID_`,`PROC_INST_ID_`,`BUSINESS_KEY_`,`PROC_DEF_ID_`,`START_TIME_`,`END_TIME_`,`DURATION_`,`START_USER_ID_`,`START_ACT_ID_`,`END_ACT_ID_`,`SUPER_PROCESS_INSTANCE_ID_`,`DELETE_REASON_`,`TENANT_ID_`,`NAME_`) values ('10001','10001','Leavebill:19','Leavebill:1:4','2020-08-11 10:29:49','2020-08-19 09:52:38',688969655,NULL,'startevent1','endevent1',NULL,NULL,'',NULL),('12501','12501','Leavebill:20','Leavebill:1:4','2020-08-19 09:51:25','2020-08-19 09:52:40',75671,NULL,'startevent1','endevent1',NULL,NULL,'',NULL),('15001','15001','Leavebill:21','Leavebill:1:4','2020-08-19 16:13:37','2020-08-19 16:15:26',109672,NULL,'startevent1','endevent1',NULL,NULL,'',NULL),('2509','2509','Leavebill:16','Leavebill:1:4','2020-08-09 14:26:48','2020-08-19 09:52:42',847554678,'李四','startevent1','endevent1',NULL,NULL,'',NULL),('5','5','Leavebill:15','Leavebill:1:4','2020-08-09 09:24:27','2020-08-09 14:26:23',18116896,NULL,'startevent1','endevent1',NULL,NULL,'',NULL),('5011','5011','Leavebill:17','Leavebill:1:4','2020-08-09 16:50:54','2020-08-19 09:53:17',838943704,NULL,'startevent1','endevent1',NULL,NULL,'',NULL),('7501','7501','Leavebill:18','Leavebill:1:4','2020-08-10 13:07:39',NULL,NULL,NULL,'startevent1',NULL,NULL,NULL,'',NULL);
+
+/*Table structure for table `act_hi_taskinst` */
+
+DROP TABLE IF EXISTS `act_hi_taskinst`;
+
+CREATE TABLE `act_hi_taskinst` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `PROC_DEF_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `TASK_DEF_KEY_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `PROC_INST_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `EXECUTION_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `NAME_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `PARENT_TASK_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `DESCRIPTION_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `OWNER_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `ASSIGNEE_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `START_TIME_` datetime NOT NULL,
+  `CLAIM_TIME_` datetime DEFAULT NULL,
+  `END_TIME_` datetime DEFAULT NULL,
+  `DURATION_` bigint(20) DEFAULT NULL,
+  `DELETE_REASON_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `PRIORITY_` int(11) DEFAULT NULL,
+  `DUE_DATE_` datetime DEFAULT NULL,
+  `FORM_KEY_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `CATEGORY_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `TENANT_ID_` varchar(255) COLLATE utf8_bin DEFAULT '',
+  PRIMARY KEY (`ID_`),
+  KEY `ACT_IDX_HI_TASK_INST_PROCINST` (`PROC_INST_ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_hi_taskinst` */
+
+insert  into `act_hi_taskinst`(`ID_`,`PROC_DEF_ID_`,`TASK_DEF_KEY_`,`PROC_INST_ID_`,`EXECUTION_ID_`,`NAME_`,`PARENT_TASK_ID_`,`DESCRIPTION_`,`OWNER_`,`ASSIGNEE_`,`START_TIME_`,`CLAIM_TIME_`,`END_TIME_`,`DURATION_`,`DELETE_REASON_`,`PRIORITY_`,`DUE_DATE_`,`FORM_KEY_`,`CATEGORY_`,`TENANT_ID_`) values ('10','Leavebill:1:4','usertask1','5','5','提交申请',NULL,NULL,NULL,'刘八','2020-08-09 09:24:27',NULL,'2020-08-09 09:24:49',22744,'completed',50,NULL,NULL,NULL,''),('10006','Leavebill:1:4','usertask1','10001','10001','提交申请',NULL,NULL,NULL,'刘八','2020-08-11 10:29:49',NULL,'2020-08-11 10:29:59',10909,'completed',50,NULL,NULL,NULL,''),('10012','Leavebill:1:4','usertask2','10001','10001','审批【上级领导】',NULL,NULL,NULL,'王五','2020-08-11 10:29:59',NULL,'2020-08-11 10:31:25',86671,'completed',50,NULL,NULL,NULL,''),('10017','Leavebill:1:4','usertask3','10001','10001','审批【上上级领导】',NULL,NULL,NULL,'李四','2020-08-11 10:31:25',NULL,'2020-08-19 09:52:38',688873653,'completed',50,NULL,NULL,NULL,''),('12506','Leavebill:1:4','usertask1','12501','12501','提交申请',NULL,NULL,NULL,'刘八','2020-08-19 09:51:25',NULL,'2020-08-19 09:51:42',17652,'completed',50,NULL,NULL,NULL,''),('12512','Leavebill:1:4','usertask2','12501','12501','审批【上级领导】',NULL,NULL,NULL,'王五','2020-08-19 09:51:42',NULL,'2020-08-19 09:52:16',34320,'completed',50,NULL,NULL,NULL,''),('12517','Leavebill:1:4','usertask1','5011','5011','提交申请',NULL,NULL,NULL,'刘八','2020-08-19 09:52:01',NULL,'2020-08-19 09:53:17',76702,'completed',50,NULL,NULL,NULL,''),('12521','Leavebill:1:4','usertask3','12501','12501','审批【上上级领导】',NULL,NULL,NULL,'李四','2020-08-19 09:52:16',NULL,'2020-08-19 09:52:40',24669,'completed',50,NULL,NULL,NULL,''),('12539','Leavebill:1:4','usertask1','7501','7501','提交申请',NULL,NULL,NULL,'王五','2020-08-19 09:52:50',NULL,NULL,NULL,NULL,50,NULL,NULL,NULL,''),('15006','Leavebill:1:4','usertask1','15001','15001','提交申请',NULL,NULL,NULL,'刘八','2020-08-19 16:13:37',NULL,'2020-08-19 16:14:07',30080,'completed',50,NULL,NULL,NULL,''),('15012','Leavebill:1:4','usertask2','15001','15001','审批【上级领导】',NULL,NULL,NULL,'王五','2020-08-19 16:14:07',NULL,'2020-08-19 16:14:42',35409,'completed',50,NULL,NULL,NULL,''),('15017','Leavebill:1:4','usertask3','15001','15001','审批【上上级领导】',NULL,NULL,NULL,'李四','2020-08-19 16:14:42',NULL,'2020-08-19 16:15:26',44667,'completed',50,NULL,NULL,NULL,''),('16','Leavebill:1:4','usertask2','5','5','审批【上级领导】',NULL,NULL,NULL,'王五','2020-08-09 09:24:49',NULL,'2020-08-09 13:22:27',14258289,'completed',50,NULL,NULL,NULL,''),('2504','Leavebill:1:4','usertask3','5','5','审批【上上级领导】',NULL,NULL,NULL,'李四','2020-08-09 13:22:27',NULL,'2020-08-09 14:26:23',3836892,'completed',50,NULL,NULL,NULL,''),('2515','Leavebill:1:4','usertask1','2509','2509','提交申请',NULL,NULL,NULL,'刘八','2020-08-09 14:26:48',NULL,'2020-08-09 16:23:59',7031206,'completed',50,NULL,NULL,NULL,''),('5005','Leavebill:1:4','usertask2','2509','2509','审批【上级领导】',NULL,NULL,NULL,'王五','2020-08-09 16:23:59',NULL,'2020-08-09 16:24:27',28925,'completed',50,NULL,NULL,NULL,''),('5010','Leavebill:1:4','usertask3','2509','2509','审批【上上级领导】',NULL,NULL,NULL,'李四','2020-08-09 16:24:27',NULL,'2020-08-19 09:52:42',840495677,'completed',50,NULL,NULL,NULL,''),('5016','Leavebill:1:4','usertask1','5011','5011','提交申请',NULL,NULL,NULL,'刘八','2020-08-09 16:50:54',NULL,'2020-08-09 16:52:53',119820,'completed',50,NULL,NULL,NULL,''),('5022','Leavebill:1:4','usertask2','5011','5011','审批【上级领导】',NULL,NULL,NULL,'王五','2020-08-09 16:52:53',NULL,'2020-08-19 09:52:01',838748751,'completed',50,NULL,NULL,NULL,''),('7506','Leavebill:1:4','usertask1','7501','7501','提交申请',NULL,NULL,NULL,'王五','2020-08-10 13:07:39',NULL,'2020-08-10 13:08:20',41551,'completed',50,NULL,NULL,NULL,''),('7512','Leavebill:1:4','usertask2','7501','7501','审批【上级领导】',NULL,NULL,NULL,'李四','2020-08-10 13:08:20',NULL,'2020-08-19 09:52:50',765870655,'completed',50,NULL,NULL,NULL,'');
+
+/*Table structure for table `act_hi_varinst` */
+
+DROP TABLE IF EXISTS `act_hi_varinst`;
+
+CREATE TABLE `act_hi_varinst` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `PROC_INST_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `EXECUTION_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `TASK_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `NAME_` varchar(255) COLLATE utf8_bin NOT NULL,
+  `VAR_TYPE_` varchar(100) COLLATE utf8_bin DEFAULT NULL,
+  `REV_` int(11) DEFAULT NULL,
+  `BYTEARRAY_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `DOUBLE_` double DEFAULT NULL,
+  `LONG_` bigint(20) DEFAULT NULL,
+  `TEXT_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `TEXT2_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `CREATE_TIME_` datetime DEFAULT NULL,
+  `LAST_UPDATED_TIME_` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID_`),
+  KEY `ACT_IDX_HI_PROCVAR_PROC_INST` (`PROC_INST_ID_`),
+  KEY `ACT_IDX_HI_PROCVAR_NAME_TYPE` (`NAME_`,`VAR_TYPE_`),
+  KEY `ACT_IDX_HI_PROCVAR_TASK_ID` (`TASK_ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_hi_varinst` */
+
+insert  into `act_hi_varinst`(`ID_`,`PROC_INST_ID_`,`EXECUTION_ID_`,`TASK_ID_`,`NAME_`,`VAR_TYPE_`,`REV_`,`BYTEARRAY_ID_`,`DOUBLE_`,`LONG_`,`TEXT_`,`TEXT2_`,`CREATE_TIME_`,`LAST_UPDATED_TIME_`) values ('10003','10001','10001',NULL,'username','string',1,NULL,NULL,NULL,'刘八',NULL,'2020-08-11 10:29:49','2020-08-19 09:52:38'),('10009','10001','10001',NULL,'outcome','string',2,NULL,NULL,NULL,'同意',NULL,'2020-08-11 10:29:59','2020-08-19 09:52:38'),('12503','12501','12501',NULL,'username','string',1,NULL,NULL,NULL,'刘八',NULL,'2020-08-19 09:51:25','2020-08-19 09:52:40'),('12509','12501','12501',NULL,'outcome','string',2,NULL,NULL,NULL,'同意',NULL,'2020-08-19 09:51:42','2020-08-19 09:52:40'),('13','5','5',NULL,'outcome','string',2,NULL,NULL,NULL,'同意',NULL,'2020-08-09 09:24:49','2020-08-09 14:26:23'),('15003','15001','15001',NULL,'username','string',1,NULL,NULL,NULL,'刘八',NULL,'2020-08-19 16:13:37','2020-08-19 16:15:26'),('15009','15001','15001',NULL,'outcome','string',2,NULL,NULL,NULL,'同意',NULL,'2020-08-19 16:14:07','2020-08-19 16:15:26'),('2512','2509','2509',NULL,'username','string',1,NULL,NULL,NULL,'刘八',NULL,'2020-08-09 14:26:48','2020-08-19 09:52:42'),('5002','2509','2509',NULL,'outcome','string',2,NULL,NULL,NULL,'同意',NULL,'2020-08-09 16:23:59','2020-08-19 09:52:42'),('5013','5011','5011',NULL,'username','string',1,NULL,NULL,NULL,'刘八',NULL,'2020-08-09 16:50:54','2020-08-19 09:53:17'),('5019','5011','5011',NULL,'outcome','string',2,NULL,NULL,NULL,'放弃',NULL,'2020-08-09 16:52:53','2020-08-19 09:53:17'),('7','5','5',NULL,'username','string',1,NULL,NULL,NULL,'刘八',NULL,'2020-08-09 09:24:27','2020-08-09 14:26:23'),('7503','7501','7501',NULL,'username','string',0,NULL,NULL,NULL,'王五',NULL,'2020-08-10 13:07:39','2020-08-10 13:07:39'),('7509','7501','7501',NULL,'outcome','string',1,NULL,NULL,NULL,'驳回',NULL,'2020-08-10 13:08:20','2020-08-19 09:52:50');
+
+/*Table structure for table `act_id_group` */
+
+DROP TABLE IF EXISTS `act_id_group`;
+
+CREATE TABLE `act_id_group` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `REV_` int(11) DEFAULT NULL,
+  `NAME_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `TYPE_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_id_group` */
+
+/*Table structure for table `act_id_info` */
+
+DROP TABLE IF EXISTS `act_id_info`;
+
+CREATE TABLE `act_id_info` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `REV_` int(11) DEFAULT NULL,
+  `USER_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `TYPE_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `KEY_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `VALUE_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `PASSWORD_` longblob,
+  `PARENT_ID_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_id_info` */
+
+/*Table structure for table `act_id_membership` */
+
+DROP TABLE IF EXISTS `act_id_membership`;
+
+CREATE TABLE `act_id_membership` (
+  `USER_ID_` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `GROUP_ID_` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`USER_ID_`,`GROUP_ID_`),
+  KEY `ACT_FK_MEMB_GROUP` (`GROUP_ID_`),
+  CONSTRAINT `ACT_FK_MEMB_USER` FOREIGN KEY (`USER_ID_`) REFERENCES `act_id_user` (`ID_`),
+  CONSTRAINT `ACT_FK_MEMB_GROUP` FOREIGN KEY (`GROUP_ID_`) REFERENCES `act_id_group` (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_id_membership` */
+
+/*Table structure for table `act_id_user` */
+
+DROP TABLE IF EXISTS `act_id_user`;
+
+CREATE TABLE `act_id_user` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `REV_` int(11) DEFAULT NULL,
+  `FIRST_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `LAST_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `EMAIL_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `PWD_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `PICTURE_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_id_user` */
+
+/*Table structure for table `act_procdef_info` */
+
+DROP TABLE IF EXISTS `act_procdef_info`;
+
+CREATE TABLE `act_procdef_info` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `PROC_DEF_ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `REV_` int(11) DEFAULT NULL,
+  `INFO_JSON_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`ID_`),
+  UNIQUE KEY `ACT_UNIQ_INFO_PROCDEF` (`PROC_DEF_ID_`),
+  KEY `ACT_IDX_INFO_PROCDEF` (`PROC_DEF_ID_`),
+  KEY `ACT_FK_INFO_JSON_BA` (`INFO_JSON_ID_`),
+  CONSTRAINT `ACT_FK_INFO_PROCDEF` FOREIGN KEY (`PROC_DEF_ID_`) REFERENCES `act_re_procdef` (`ID_`),
+  CONSTRAINT `ACT_FK_INFO_JSON_BA` FOREIGN KEY (`INFO_JSON_ID_`) REFERENCES `act_ge_bytearray` (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_procdef_info` */
+
+/*Table structure for table `act_re_deployment` */
+
+DROP TABLE IF EXISTS `act_re_deployment`;
+
+CREATE TABLE `act_re_deployment` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `NAME_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `CATEGORY_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `TENANT_ID_` varchar(255) COLLATE utf8_bin DEFAULT '',
+  `DEPLOY_TIME_` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_re_deployment` */
+
+insert  into `act_re_deployment`(`ID_`,`NAME_`,`CATEGORY_`,`TENANT_ID_`,`DEPLOY_TIME_`) values ('1','请假流程',NULL,'','2020-08-09 09:23:15');
+
+/*Table structure for table `act_re_model` */
+
+DROP TABLE IF EXISTS `act_re_model`;
+
+CREATE TABLE `act_re_model` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `REV_` int(11) DEFAULT NULL,
+  `NAME_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `KEY_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `CATEGORY_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `CREATE_TIME_` timestamp NULL DEFAULT NULL,
+  `LAST_UPDATE_TIME_` timestamp NULL DEFAULT NULL,
+  `VERSION_` int(11) DEFAULT NULL,
+  `META_INFO_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `DEPLOYMENT_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `EDITOR_SOURCE_VALUE_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `EDITOR_SOURCE_EXTRA_VALUE_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `TENANT_ID_` varchar(255) COLLATE utf8_bin DEFAULT '',
+  PRIMARY KEY (`ID_`),
+  KEY `ACT_FK_MODEL_SOURCE` (`EDITOR_SOURCE_VALUE_ID_`),
+  KEY `ACT_FK_MODEL_SOURCE_EXTRA` (`EDITOR_SOURCE_EXTRA_VALUE_ID_`),
+  KEY `ACT_FK_MODEL_DEPLOYMENT` (`DEPLOYMENT_ID_`),
+  CONSTRAINT `ACT_FK_MODEL_DEPLOYMENT` FOREIGN KEY (`DEPLOYMENT_ID_`) REFERENCES `act_re_deployment` (`ID_`),
+  CONSTRAINT `ACT_FK_MODEL_SOURCE` FOREIGN KEY (`EDITOR_SOURCE_VALUE_ID_`) REFERENCES `act_ge_bytearray` (`ID_`),
+  CONSTRAINT `ACT_FK_MODEL_SOURCE_EXTRA` FOREIGN KEY (`EDITOR_SOURCE_EXTRA_VALUE_ID_`) REFERENCES `act_ge_bytearray` (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_re_model` */
+
+/*Table structure for table `act_re_procdef` */
+
+DROP TABLE IF EXISTS `act_re_procdef`;
+
+CREATE TABLE `act_re_procdef` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `REV_` int(11) DEFAULT NULL,
+  `CATEGORY_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `NAME_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `KEY_` varchar(255) COLLATE utf8_bin NOT NULL,
+  `VERSION_` int(11) NOT NULL,
+  `DEPLOYMENT_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `RESOURCE_NAME_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `DGRM_RESOURCE_NAME_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `DESCRIPTION_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `HAS_START_FORM_KEY_` tinyint(4) DEFAULT NULL,
+  `HAS_GRAPHICAL_NOTATION_` tinyint(4) DEFAULT NULL,
+  `SUSPENSION_STATE_` int(11) DEFAULT NULL,
+  `TENANT_ID_` varchar(255) COLLATE utf8_bin DEFAULT '',
+  PRIMARY KEY (`ID_`),
+  UNIQUE KEY `ACT_UNIQ_PROCDEF` (`KEY_`,`VERSION_`,`TENANT_ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_re_procdef` */
+
+insert  into `act_re_procdef`(`ID_`,`REV_`,`CATEGORY_`,`NAME_`,`KEY_`,`VERSION_`,`DEPLOYMENT_ID_`,`RESOURCE_NAME_`,`DGRM_RESOURCE_NAME_`,`DESCRIPTION_`,`HAS_START_FORM_KEY_`,`HAS_GRAPHICAL_NOTATION_`,`SUSPENSION_STATE_`,`TENANT_ID_`) values ('Leavebill:1:4',1,'http://www.activiti.org/test','Leavebill','Leavebill',1,'1','Leavebill.bpmn','Leavebill.png',NULL,0,1,1,'');
+
+/*Table structure for table `act_ru_event_subscr` */
+
+DROP TABLE IF EXISTS `act_ru_event_subscr`;
+
+CREATE TABLE `act_ru_event_subscr` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `REV_` int(11) DEFAULT NULL,
+  `EVENT_TYPE_` varchar(255) COLLATE utf8_bin NOT NULL,
+  `EVENT_NAME_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `EXECUTION_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `PROC_INST_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `ACTIVITY_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `CONFIGURATION_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `CREATED_` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `PROC_DEF_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `TENANT_ID_` varchar(255) COLLATE utf8_bin DEFAULT '',
+  PRIMARY KEY (`ID_`),
+  KEY `ACT_IDX_EVENT_SUBSCR_CONFIG_` (`CONFIGURATION_`),
+  KEY `ACT_FK_EVENT_EXEC` (`EXECUTION_ID_`),
+  CONSTRAINT `ACT_FK_EVENT_EXEC` FOREIGN KEY (`EXECUTION_ID_`) REFERENCES `act_ru_execution` (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_ru_event_subscr` */
+
+/*Table structure for table `act_ru_execution` */
+
+DROP TABLE IF EXISTS `act_ru_execution`;
+
+CREATE TABLE `act_ru_execution` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `REV_` int(11) DEFAULT NULL,
+  `PROC_INST_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `BUSINESS_KEY_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `PARENT_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `PROC_DEF_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `SUPER_EXEC_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `ACT_ID_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `IS_ACTIVE_` tinyint(4) DEFAULT NULL,
+  `IS_CONCURRENT_` tinyint(4) DEFAULT NULL,
+  `IS_SCOPE_` tinyint(4) DEFAULT NULL,
+  `IS_EVENT_SCOPE_` tinyint(4) DEFAULT NULL,
+  `SUSPENSION_STATE_` int(11) DEFAULT NULL,
+  `CACHED_ENT_STATE_` int(11) DEFAULT NULL,
+  `TENANT_ID_` varchar(255) COLLATE utf8_bin DEFAULT '',
+  `NAME_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `LOCK_TIME_` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`ID_`),
+  KEY `ACT_IDX_EXEC_BUSKEY` (`BUSINESS_KEY_`),
+  KEY `ACT_FK_EXE_PROCINST` (`PROC_INST_ID_`),
+  KEY `ACT_FK_EXE_PARENT` (`PARENT_ID_`),
+  KEY `ACT_FK_EXE_SUPER` (`SUPER_EXEC_`),
+  KEY `ACT_FK_EXE_PROCDEF` (`PROC_DEF_ID_`),
+  CONSTRAINT `ACT_FK_EXE_PROCDEF` FOREIGN KEY (`PROC_DEF_ID_`) REFERENCES `act_re_procdef` (`ID_`),
+  CONSTRAINT `ACT_FK_EXE_PARENT` FOREIGN KEY (`PARENT_ID_`) REFERENCES `act_ru_execution` (`ID_`),
+  CONSTRAINT `ACT_FK_EXE_PROCINST` FOREIGN KEY (`PROC_INST_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `ACT_FK_EXE_SUPER` FOREIGN KEY (`SUPER_EXEC_`) REFERENCES `act_ru_execution` (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_ru_execution` */
+
+insert  into `act_ru_execution`(`ID_`,`REV_`,`PROC_INST_ID_`,`BUSINESS_KEY_`,`PARENT_ID_`,`PROC_DEF_ID_`,`SUPER_EXEC_`,`ACT_ID_`,`IS_ACTIVE_`,`IS_CONCURRENT_`,`IS_SCOPE_`,`IS_EVENT_SCOPE_`,`SUSPENSION_STATE_`,`CACHED_ENT_STATE_`,`TENANT_ID_`,`NAME_`,`LOCK_TIME_`) values ('7501',3,'7501','Leavebill:18',NULL,'Leavebill:1:4',NULL,'usertask1',1,0,1,0,1,2,'',NULL,NULL);
+
+/*Table structure for table `act_ru_identitylink` */
+
+DROP TABLE IF EXISTS `act_ru_identitylink`;
+
+CREATE TABLE `act_ru_identitylink` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `REV_` int(11) DEFAULT NULL,
+  `GROUP_ID_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `TYPE_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `USER_ID_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `TASK_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `PROC_INST_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `PROC_DEF_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`ID_`),
+  KEY `ACT_IDX_IDENT_LNK_USER` (`USER_ID_`),
+  KEY `ACT_IDX_IDENT_LNK_GROUP` (`GROUP_ID_`),
+  KEY `ACT_IDX_ATHRZ_PROCEDEF` (`PROC_DEF_ID_`),
+  KEY `ACT_FK_TSKASS_TASK` (`TASK_ID_`),
+  KEY `ACT_FK_IDL_PROCINST` (`PROC_INST_ID_`),
+  CONSTRAINT `ACT_FK_IDL_PROCINST` FOREIGN KEY (`PROC_INST_ID_`) REFERENCES `act_ru_execution` (`ID_`),
+  CONSTRAINT `ACT_FK_ATHRZ_PROCEDEF` FOREIGN KEY (`PROC_DEF_ID_`) REFERENCES `act_re_procdef` (`ID_`),
+  CONSTRAINT `ACT_FK_TSKASS_TASK` FOREIGN KEY (`TASK_ID_`) REFERENCES `act_ru_task` (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_ru_identitylink` */
+
+insert  into `act_ru_identitylink`(`ID_`,`REV_`,`GROUP_ID_`,`TYPE_`,`USER_ID_`,`TASK_ID_`,`PROC_INST_ID_`,`PROC_DEF_ID_`) values ('7507',1,NULL,'participant','王五',NULL,'7501',NULL),('7513',1,NULL,'participant','李四',NULL,'7501',NULL);
+
+/*Table structure for table `act_ru_job` */
+
+DROP TABLE IF EXISTS `act_ru_job`;
+
+CREATE TABLE `act_ru_job` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `REV_` int(11) DEFAULT NULL,
+  `TYPE_` varchar(255) COLLATE utf8_bin NOT NULL,
+  `LOCK_EXP_TIME_` timestamp NULL DEFAULT NULL,
+  `LOCK_OWNER_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `EXCLUSIVE_` tinyint(1) DEFAULT NULL,
+  `EXECUTION_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `PROCESS_INSTANCE_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `PROC_DEF_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `RETRIES_` int(11) DEFAULT NULL,
+  `EXCEPTION_STACK_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `EXCEPTION_MSG_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `DUEDATE_` timestamp NULL DEFAULT NULL,
+  `REPEAT_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `HANDLER_TYPE_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `HANDLER_CFG_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `TENANT_ID_` varchar(255) COLLATE utf8_bin DEFAULT '',
+  PRIMARY KEY (`ID_`),
+  KEY `ACT_FK_JOB_EXCEPTION` (`EXCEPTION_STACK_ID_`),
+  CONSTRAINT `ACT_FK_JOB_EXCEPTION` FOREIGN KEY (`EXCEPTION_STACK_ID_`) REFERENCES `act_ge_bytearray` (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_ru_job` */
+
+/*Table structure for table `act_ru_task` */
+
+DROP TABLE IF EXISTS `act_ru_task`;
+
+CREATE TABLE `act_ru_task` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `REV_` int(11) DEFAULT NULL,
+  `EXECUTION_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `PROC_INST_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `PROC_DEF_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `NAME_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `PARENT_TASK_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `DESCRIPTION_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `TASK_DEF_KEY_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `OWNER_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `ASSIGNEE_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `DELEGATION_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `PRIORITY_` int(11) DEFAULT NULL,
+  `CREATE_TIME_` timestamp NULL DEFAULT NULL,
+  `DUE_DATE_` datetime DEFAULT NULL,
+  `CATEGORY_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `SUSPENSION_STATE_` int(11) DEFAULT NULL,
+  `TENANT_ID_` varchar(255) COLLATE utf8_bin DEFAULT '',
+  `FORM_KEY_` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`ID_`),
+  KEY `ACT_IDX_TASK_CREATE` (`CREATE_TIME_`),
+  KEY `ACT_FK_TASK_EXE` (`EXECUTION_ID_`),
+  KEY `ACT_FK_TASK_PROCINST` (`PROC_INST_ID_`),
+  KEY `ACT_FK_TASK_PROCDEF` (`PROC_DEF_ID_`),
+  CONSTRAINT `ACT_FK_TASK_PROCDEF` FOREIGN KEY (`PROC_DEF_ID_`) REFERENCES `act_re_procdef` (`ID_`),
+  CONSTRAINT `ACT_FK_TASK_EXE` FOREIGN KEY (`EXECUTION_ID_`) REFERENCES `act_ru_execution` (`ID_`),
+  CONSTRAINT `ACT_FK_TASK_PROCINST` FOREIGN KEY (`PROC_INST_ID_`) REFERENCES `act_ru_execution` (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_ru_task` */
+
+insert  into `act_ru_task`(`ID_`,`REV_`,`EXECUTION_ID_`,`PROC_INST_ID_`,`PROC_DEF_ID_`,`NAME_`,`PARENT_TASK_ID_`,`DESCRIPTION_`,`TASK_DEF_KEY_`,`OWNER_`,`ASSIGNEE_`,`DELEGATION_`,`PRIORITY_`,`CREATE_TIME_`,`DUE_DATE_`,`CATEGORY_`,`SUSPENSION_STATE_`,`TENANT_ID_`,`FORM_KEY_`) values ('12539',1,'7501','7501','Leavebill:1:4','提交申请',NULL,NULL,'usertask1',NULL,'王五',NULL,50,'2020-08-19 09:52:50',NULL,NULL,1,'',NULL);
+
+/*Table structure for table `act_ru_variable` */
+
+DROP TABLE IF EXISTS `act_ru_variable`;
+
+CREATE TABLE `act_ru_variable` (
+  `ID_` varchar(64) COLLATE utf8_bin NOT NULL,
+  `REV_` int(11) DEFAULT NULL,
+  `TYPE_` varchar(255) COLLATE utf8_bin NOT NULL,
+  `NAME_` varchar(255) COLLATE utf8_bin NOT NULL,
+  `EXECUTION_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `PROC_INST_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `TASK_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `BYTEARRAY_ID_` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  `DOUBLE_` double DEFAULT NULL,
+  `LONG_` bigint(20) DEFAULT NULL,
+  `TEXT_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  `TEXT2_` varchar(4000) COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`ID_`),
+  KEY `ACT_IDX_VARIABLE_TASK_ID` (`TASK_ID_`),
+  KEY `ACT_FK_VAR_EXE` (`EXECUTION_ID_`),
+  KEY `ACT_FK_VAR_PROCINST` (`PROC_INST_ID_`),
+  KEY `ACT_FK_VAR_BYTEARRAY` (`BYTEARRAY_ID_`),
+  CONSTRAINT `ACT_FK_VAR_BYTEARRAY` FOREIGN KEY (`BYTEARRAY_ID_`) REFERENCES `act_ge_bytearray` (`ID_`),
+  CONSTRAINT `ACT_FK_VAR_EXE` FOREIGN KEY (`EXECUTION_ID_`) REFERENCES `act_ru_execution` (`ID_`),
+  CONSTRAINT `ACT_FK_VAR_PROCINST` FOREIGN KEY (`PROC_INST_ID_`) REFERENCES `act_ru_execution` (`ID_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*Data for the table `act_ru_variable` */
+
+insert  into `act_ru_variable`(`ID_`,`REV_`,`TYPE_`,`NAME_`,`EXECUTION_ID_`,`PROC_INST_ID_`,`TASK_ID_`,`BYTEARRAY_ID_`,`DOUBLE_`,`LONG_`,`TEXT_`,`TEXT2_`) values ('7503',1,'string','username','7501','7501',NULL,NULL,NULL,NULL,'王五',NULL),('7509',2,'string','outcome','7501','7501',NULL,NULL,NULL,NULL,'驳回',NULL);
+
+/*Table structure for table `sys_dept` */
+
+DROP TABLE IF EXISTS `sys_dept`;
+
+CREATE TABLE `sys_dept` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `pid` int(11) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `open` int(11) DEFAULT NULL,
+  `remark` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `available` int(11) DEFAULT NULL COMMENT '状态【0不可用1可用】',
+  `ordernum` int(11) DEFAULT NULL COMMENT '排序码【为了调事显示顺序】',
+  `createtime` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+/*Data for the table `sys_dept` */
+
+insert  into `sys_dept`(`id`,`pid`,`title`,`open`,`remark`,`address`,`available`,`ordernum`,`createtime`) values (1,0,'总经办',1,'大BOSS1','深圳',1,1,'2019-04-10 14:06:32'),(2,1,'销售部',0,'程序员屌丝','武汉',1,2,'2019-04-10 14:06:32'),(3,1,'运营部',0,'无','武汉',1,3,'2019-04-10 14:06:32'),(4,1,'生产部',0,'无','武汉',1,4,'2019-04-10 14:06:32'),(5,2,'销售一部',0,'销售一部','武汉',1,5,'2019-04-10 14:06:32'),(6,2,'销售二部',0,'销售二部','武汉',1,6,'2019-04-10 14:06:32'),(7,3,'运营一部',0,'运营一部','武汉',1,7,'2019-04-10 14:06:32'),(8,2,'销售三部',0,'销售三部','11',1,8,'2019-04-10 14:06:32'),(9,2,'销售四部',0,'销售四部','222',1,9,'2019-04-10 14:06:32'),(10,2,'销售五部',0,'销售五部','33',1,10,'2019-04-10 14:06:32'),(35,4,'123',1,'123','123',1,11,'2020-07-28 12:15:37');
+
+/*Table structure for table `sys_leavebill` */
+
+DROP TABLE IF EXISTS `sys_leavebill`;
+
+CREATE TABLE `sys_leavebill` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) DEFAULT NULL,
+  `content` varchar(255) DEFAULT NULL,
+  `days` double(255,0) DEFAULT NULL,
+  `leavetime` datetime DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL COMMENT '0未提交 1审批中 2审批完成 3已放弃',
+  `userid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
+
+/*Data for the table `sys_leavebill` */
+
+insert  into `sys_leavebill`(`id`,`title`,`content`,`days`,`leavetime`,`state`,`userid`) values (15,'刘八的请假单','生病了',2,'2020-08-09 00:00:00','2',6),(18,'王五的请假单','生病了',1,'2020-08-10 00:00:00','1',3),(19,'刘八的请假单','1',2,'2020-08-11 00:00:00','2',6),(20,'刘八的请假单','回家相亲',2,'2020-08-19 00:00:01','2',6),(21,'刘八的请假单','shengbing',1,'2020-08-19 00:00:00','2',6);
+
+/*Table structure for table `sys_loginfo` */
+
+DROP TABLE IF EXISTS `sys_loginfo`;
+
+CREATE TABLE `sys_loginfo` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `loginname` varchar(255) DEFAULT NULL,
+  `loginip` varchar(255) DEFAULT NULL,
+  `logintime` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=531 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+/*Data for the table `sys_loginfo` */
+
+insert  into `sys_loginfo`(`id`,`loginname`,`loginip`,`logintime`) values (2,'超级管理员-system','127.0.0.1','2018-12-21 16:54:52'),(3,'超级管理员-system','127.0.0.1','2018-12-21 16:55:15'),(4,'超级管理员-system','127.0.0.1','2018-12-21 17:29:22'),(5,'超级管理员-system','127.0.0.1','2018-12-22 09:05:22'),(6,'超级管理员-system','127.0.0.1','2018-12-22 09:20:43'),(7,'超级管理员-system','127.0.0.1','2018-12-22 09:25:40'),(8,'超级管理员-system','127.0.0.1','2018-12-22 09:27:11'),(9,'超级管理员-system','127.0.0.1','2018-12-22 09:29:58'),(10,'超级管理员-system','127.0.0.1','2018-12-22 09:36:49'),(11,'超级管理员-system','127.0.0.1','2018-12-22 09:46:56'),(12,'超级管理员-system','127.0.0.1','2018-12-22 09:48:29'),(13,'超级管理员-system','127.0.0.1','2018-12-22 09:49:13'),(14,'超级管理员-system','127.0.0.1','2018-12-22 09:49:57'),(15,'超级管理员-system','127.0.0.1','2018-12-22 09:57:46'),(16,'超级管理员-system','127.0.0.1','2018-12-22 10:21:53'),(17,'超级管理员-system','127.0.0.1','2018-12-22 10:38:25'),(18,'超级管理员-system','127.0.0.1','2018-12-22 10:49:21'),(19,'超级管理员-system','127.0.0.1','2018-12-22 14:01:42'),(20,'超级管理员-system','127.0.0.1','2018-12-22 14:19:48'),(21,'超级管理员-system','127.0.0.1','2018-12-22 14:45:29'),(22,'超级管理员-system','127.0.0.1','2018-12-22 15:58:05'),(23,'超级管理员-system','127.0.0.1','2018-12-22 16:40:53'),(24,'超级管理员-system','127.0.0.1','2018-12-22 17:12:01'),(25,'超级管理员-system','127.0.0.1','2018-12-24 09:19:15'),(26,'超级管理员-system','127.0.0.1','2018-12-24 09:37:28'),(27,'超级管理员-system','127.0.0.1','2018-12-24 09:46:51'),(28,'超级管理员-system','127.0.0.1','2018-12-24 09:50:40'),(29,'超级管理员-system','127.0.0.1','2018-12-24 09:52:52'),(30,'超级管理员-system','127.0.0.1','2018-12-24 10:00:26'),(31,'超级管理员-system','127.0.0.1','2018-12-24 10:10:58'),(32,'超级管理员-system','127.0.0.1','2018-12-24 10:21:28'),(33,'超级管理员-system','127.0.0.1','2018-12-24 11:22:27'),(34,'超级管理员-system','127.0.0.1','2018-12-24 11:35:28'),(35,'超级管理员-system','127.0.0.1','2018-12-24 14:05:28'),(36,'超级管理员-system','127.0.0.1','2018-12-24 15:16:29'),(37,'李四-ls','127.0.0.1','2018-12-24 15:16:50'),(38,'王五-ww','127.0.0.1','2018-12-24 15:17:36'),(39,'赵六-zl','127.0.0.1','2018-12-24 15:17:47'),(40,'孙七-sq','127.0.0.1','2018-12-24 15:17:58'),(41,'刘八-lb','127.0.0.1','2018-12-24 15:18:09'),(42,'超级管理员-system','127.0.0.1','2018-12-24 15:34:59'),(43,'超级管理员-system','127.0.0.1','2018-12-24 15:35:09'),(44,'刘八-lb','127.0.0.1','2018-12-24 15:36:09'),(45,'刘八-lb','127.0.0.1','2018-12-24 15:42:58'),(46,'刘八-lb','127.0.0.1','2018-12-24 15:43:04'),(47,'超级管理员-system','127.0.0.1','2018-12-24 15:46:01'),(48,'超级管理员-system','127.0.0.1','2018-12-24 17:03:54'),(49,'超级管理员-system','127.0.0.1','2018-12-24 17:26:32'),(50,'超级管理员-system','127.0.0.1','2018-12-25 09:07:42'),(51,'超级管理员-system','127.0.0.1','2018-12-25 09:16:27'),(52,'超级管理员-system','127.0.0.1','2018-12-25 09:59:03'),(53,'超级管理员-system','127.0.0.1','2018-12-25 10:05:13'),(54,'超级管理员-system','127.0.0.1','2018-12-25 10:05:47'),(55,'超级管理员-system','127.0.0.1','2018-12-25 10:11:17'),(56,'超级管理员-system','127.0.0.1','2018-12-25 10:14:06'),(57,'超级管理员-system','127.0.0.1','2018-12-25 10:36:16'),(58,'超级管理员-system','127.0.0.1','2018-12-25 14:17:21'),(59,'超级管理员-system','127.0.0.1','2018-12-25 14:20:00'),(60,'超级管理员-system','127.0.0.1','2018-12-25 14:34:22'),(61,'超级管理员-system','127.0.0.1','2018-12-25 14:34:27'),(62,'超级管理员-system','127.0.0.1','2018-12-25 14:38:37'),(63,'超级管理员-system','127.0.0.1','2018-12-25 14:50:37'),(64,'超级管理员-system','127.0.0.1','2018-12-25 16:01:35'),(65,'超级管理员-system','127.0.0.1','2018-12-25 16:25:28'),(66,'超级管理员-system','127.0.0.1','2018-12-25 16:27:37'),(67,'超级管理员-system','127.0.0.1','2018-12-25 16:28:28'),(68,'超级管理员-system','127.0.0.1','2018-12-25 16:44:02'),(69,'超级管理员-system','127.0.0.1','2018-12-25 16:47:55'),(70,'超级管理员-system','127.0.0.1','2018-12-28 15:59:34'),(71,'超级管理员-system','127.0.0.1','2018-12-28 17:27:16'),(72,'超级管理员-system','127.0.0.1','2018-12-28 17:29:40'),(73,'超级管理员-system','127.0.0.1','2018-12-28 17:51:10'),(74,'超级管理员-system','127.0.0.1','2019-04-15 17:05:02'),(75,'超级管理员-system','127.0.0.1','2019-04-15 17:05:12'),(76,'超级管理员-system','127.0.0.1','2019-04-15 17:10:22'),(77,'刘八-lb','127.0.0.1','2019-04-15 17:11:45'),(78,'刘八-lb','127.0.0.1','2019-04-15 17:28:50'),(79,'超级管理员-system','127.0.0.1','2019-04-15 17:29:13'),(80,'刘八-lb','127.0.0.1','2019-04-15 17:30:59'),(81,'刘八-lb','127.0.0.1','2019-04-15 17:32:42'),(82,'刘八-lb','127.0.0.1','2019-04-15 17:33:48'),(83,'刘八-lb','127.0.0.1','2019-04-15 17:34:17'),(84,'超级管理员-system','127.0.0.1','2019-04-15 17:36:40'),(85,'超级管理员-system','127.0.0.1','2019-04-15 17:47:21'),(86,'超级管理员-system','127.0.0.1','2019-04-15 17:54:10'),(87,'超级管理员-system','127.0.0.1','2019-04-15 17:55:52'),(88,'超级管理员-system','127.0.0.1','2019-04-16 09:26:01'),(89,'超级管理员-system','127.0.0.1','2019-04-16 09:26:25'),(90,'超级管理员-system','127.0.0.1','2019-04-16 09:46:54'),(91,'超级管理员-system','127.0.0.1','2019-04-16 10:07:48'),(92,'超级管理员-system','127.0.0.1','2019-04-16 10:10:30'),(93,'超级管理员-system','127.0.0.1','2019-04-16 10:14:29'),(94,'超级管理员-system','127.0.0.1','2019-04-16 10:15:04'),(95,'超级管理员-system','127.0.0.1','2019-04-16 10:15:58'),(96,'超级管理员-system','127.0.0.1','2019-04-16 10:28:14'),(97,'超级管理员-system','127.0.0.1','2019-04-16 10:32:42'),(98,'超级管理员-system','127.0.0.1','2019-04-16 10:33:03'),(99,'超级管理员-system','127.0.0.1','2019-04-16 11:02:01'),(100,'超级管理员-system','127.0.0.1','2019-04-16 11:03:09'),(101,'超级管理员-system','127.0.0.1','2019-04-16 11:13:42'),(102,'超级管理员-system','127.0.0.1','2019-04-16 11:24:55'),(104,'超级管理员-system','127.0.0.1','2019-08-14 01:11:34'),(105,'超级管理员-system','127.0.0.1','2019-08-14 01:24:03'),(106,'李四-ls','127.0.0.1','2019-08-14 01:25:47'),(107,'李四-ls','127.0.0.1','2019-08-14 01:26:41'),(108,'孙七-sq','127.0.0.1','2019-08-14 01:28:22'),(109,'刘八-lb','127.0.0.1','2019-08-14 01:28:32'),(110,'超级管理员-system','127.0.0.1','2019-08-14 01:46:18'),(111,'超级管理员-system','127.0.0.1','2019-08-14 02:18:44'),(112,'超级管理员-system','127.0.0.1','2019-08-14 02:32:06'),(113,'李四-ls','127.0.0.1','2019-08-14 03:00:19'),(114,'李四-ls','127.0.0.1','2019-08-14 03:00:56'),(115,'李四-ls','127.0.0.1','2019-08-14 03:01:31'),(116,'李四-ls','127.0.0.1','2019-08-14 03:01:39'),(117,'李四-ls','127.0.0.1','2019-08-14 03:02:25'),(118,'李四-ls','127.0.0.1','2019-08-14 03:04:57'),(119,'李四-ls','127.0.0.1','2019-08-14 03:07:19'),(120,'李四-ls','127.0.0.1','2019-08-14 03:07:54'),(121,'超级管理员-system','127.0.0.1','2019-08-14 03:13:06'),(122,'李四-ls','127.0.0.1','2019-08-14 03:14:46'),(123,'超级管理员-system','127.0.0.1','2019-08-14 06:03:47'),(124,'超级管理员-system','127.0.0.1','2019-08-14 07:20:12'),(125,'超级管理员-system','127.0.0.1','2019-08-14 07:23:05'),(126,'超级管理员-system','127.0.0.1','2019-08-14 07:25:30'),(127,'超级管理员-system','127.0.0.1','2019-08-14 07:26:34'),(128,'超级管理员-system','127.0.0.1','2019-08-14 07:27:22'),(129,'超级管理员-system','127.0.0.1','2019-08-14 07:27:51'),(130,'超级管理员-system','127.0.0.1','2019-08-14 08:22:05'),(131,'超级管理员-system','127.0.0.1','2019-08-14 08:43:53'),(132,'超级管理员-system','127.0.0.1','2019-08-14 08:45:55'),(133,'超级管理员-system','127.0.0.1','2019-08-14 08:47:13'),(134,'超级管理员-system','127.0.0.1','2019-08-14 09:35:20'),(135,'超级管理员-system','127.0.0.1','2019-08-14 09:41:02'),(136,'超级管理员-system','127.0.0.1','2019-08-14 09:44:04'),(137,'超级管理员-system','127.0.0.1','2019-08-14 09:50:27'),(138,'超级管理员-system','127.0.0.1','2019-08-14 09:56:57'),(139,'超级管理员-system','127.0.0.1','2019-08-14 09:59:02'),(140,'超级管理员-system','127.0.0.1','2019-08-16 01:05:37'),(141,'超级管理员-system','127.0.0.1','2019-08-16 02:01:44'),(142,'超级管理员-system','127.0.0.1','2019-08-16 02:05:57'),(143,'超级管理员-system','127.0.0.1','2019-08-16 02:07:04'),(144,'超级管理员-system','127.0.0.1','2019-08-16 02:20:02'),(145,'超级管理员-system','127.0.0.1','2019-08-16 02:20:20'),(146,'超级管理员-system','127.0.0.1','2019-08-16 02:21:42'),(147,'超级管理员-system','127.0.0.1','2019-08-16 03:37:37'),(148,'超级管理员-system','127.0.0.1','2019-08-16 03:52:40'),(149,'超级管理员-system','127.0.0.1','2019-08-16 03:59:37'),(150,'超级管理员-system','127.0.0.1','2019-08-16 06:11:45'),(151,'超级管理员-system','127.0.0.1','2019-08-16 06:23:27'),(153,'超级管理员-system','127.0.0.1','2019-08-16 06:54:49'),(154,'超级管理员-system','127.0.0.1','2019-08-16 07:00:48'),(155,'超级管理员-system','127.0.0.1','2019-08-16 07:01:18'),(156,'超级管理员-system','127.0.0.1','2019-08-16 07:03:35'),(157,'超级管理员-system','127.0.0.1','2019-08-16 07:09:55'),(158,'超级管理员-system','127.0.0.1','2019-08-16 07:46:09'),(159,'超级管理员-system','127.0.0.1','2019-08-16 08:17:59'),(160,'超级管理员-system','127.0.0.1','2019-08-16 08:22:29'),(161,'超级管理员-system','127.0.0.1','2019-08-16 08:23:32'),(162,'超级管理员-system','127.0.0.1','2019-08-16 08:26:48'),(169,'超级管理员-system','127.0.0.1','2019-09-21 06:27:30'),(170,'超级管理员-system','127.0.0.1','2019-09-21 08:21:06'),(171,'超级管理员-system','127.0.0.1','2019-09-21 08:37:15'),(172,'超级管理员-system','127.0.0.1','2019-09-21 09:06:00'),(173,'超级管理员-system','127.0.0.1','2019-09-23 01:15:49'),(174,'超级管理员-system','127.0.0.1','2019-09-23 01:33:24'),(175,'超级管理员-system','127.0.0.1','2019-09-23 03:29:51'),(176,'超级管理员-system','127.0.0.1','2019-09-23 06:13:27'),(177,'超级管理员-system','127.0.0.1','2019-09-23 06:47:14'),(178,'超级管理员-system','127.0.0.1','2019-09-23 07:06:44'),(180,'超级管理员-system','127.0.0.1','2019-09-23 09:54:08'),(181,'超级管理员-system','127.0.0.1','2019-09-23 09:56:48'),(182,'超级管理员-system','127.0.0.1','2019-09-23 13:41:31'),(183,'超级管理员-system','127.0.0.1','2019-09-23 14:36:22'),(184,'超级管理员-system','127.0.0.1','2019-09-24 01:05:42'),(185,'超级管理员-system','127.0.0.1','2019-09-24 01:31:22'),(186,'超级管理员-system','127.0.0.1','2019-09-24 02:10:56'),(187,'超级管理员-system','127.0.0.1','2019-09-24 06:18:21'),(188,'超级管理员-system','127.0.0.1','2019-09-24 06:59:55'),(189,'超级管理员-system','127.0.0.1','2019-09-24 07:22:44'),(190,'超级管理员-system','127.0.0.1','2019-09-24 07:34:33'),(191,'超级管理员-system','127.0.0.1','2019-09-24 08:58:13'),(192,'超级管理员-system','127.0.0.1','2019-09-24 12:43:54'),(193,'超级管理员-system','127.0.0.1','2019-09-25 01:05:12'),(194,'超级管理员-system','127.0.0.1','2019-09-25 01:37:40'),(195,'超级管理员-system','127.0.0.1','2019-09-25 01:43:26'),(196,'超级管理员-system','127.0.0.1','2019-09-25 01:46:40'),(197,'超级管理员-system','127.0.0.1','2019-09-25 01:55:27'),(198,'超级管理员-system','127.0.0.1','2019-09-25 02:27:40'),(199,'超级管理员-system','127.0.0.1','2019-09-25 02:32:48'),(200,'超级管理员-system','127.0.0.1','2019-09-25 02:35:53'),(201,'超级管理员-system','127.0.0.1','2019-09-25 03:33:17'),(202,'超级管理员-system','127.0.0.1','2019-09-25 06:05:49'),(203,'超级管理员-system','127.0.0.1','2019-09-25 06:44:21'),(204,'超级管理员-system','127.0.0.1','2019-09-25 06:47:39'),(205,'超级管理员-system','127.0.0.1','2019-09-25 06:54:08'),(206,'小小明-xiaoxiaoming','127.0.0.1','2019-09-25 06:55:09'),(207,'超级管理员-system','127.0.0.1','2019-09-25 06:55:18'),(208,'超级管理员-system','127.0.0.1','2019-09-25 08:23:32'),(209,'超级管理员-system','127.0.0.1','2019-09-25 09:32:37'),(210,'超级管理员-system','127.0.0.1','2019-09-25 09:41:34'),(211,'超级管理员-system','127.0.0.1','2019-09-25 09:57:10'),(212,'李四-ls','127.0.0.1','2019-09-25 09:58:02'),(213,'王五-ww','127.0.0.1','2019-09-25 09:58:13'),(214,'习大大-xidada','127.0.0.1','2019-09-25 09:58:24'),(215,'刘八-lb','127.0.0.1','2019-09-25 10:06:07'),(216,'刘八-lb','127.0.0.1','2019-09-25 10:09:17'),(217,'刘八-lb','127.0.0.1','2019-09-25 10:11:39'),(218,'刘八-lb','127.0.0.1','2019-09-25 10:13:49'),(219,'刘八-lb','127.0.0.1','2019-09-25 10:14:16'),(220,'超级管理员-system','127.0.0.1','2019-09-27 01:12:10'),(221,'超级管理员-system','127.0.0.1','2019-09-27 01:34:40'),(222,'超级管理员-system','127.0.0.1','2019-09-27 01:36:20'),(223,'超级管理员-system','127.0.0.1','2019-09-27 03:03:01'),(224,'超级管理员-system','127.0.0.1','2019-09-27 06:12:41'),(225,'超级管理员-system','127.0.0.1','2019-09-27 06:30:55'),(226,'超级管理员-system','127.0.0.1','2019-09-27 06:32:23'),(227,'超级管理员-system','127.0.0.1','2019-09-27 06:35:18'),(228,'超级管理员-system','127.0.0.1','2019-09-27 06:41:36'),(229,'超级管理员-system','127.0.0.1','2019-09-27 06:54:10'),(230,'超级管理员-system','127.0.0.1','2019-09-27 07:21:43'),(231,'超级管理员-system','127.0.0.1','2019-09-27 07:22:43'),(232,'超级管理员-system','127.0.0.1','2019-09-27 07:23:35'),(233,'超级管理员-system','127.0.0.1','2019-09-27 07:35:38'),(234,'超级管理员-system','127.0.0.1','2019-09-27 08:38:42'),(235,'超级管理员-system','127.0.0.1','2019-09-27 08:49:03'),(236,'超级管理员-system','127.0.0.1','2019-09-27 08:50:09'),(237,'超级管理员-system','127.0.0.1','2019-09-27 08:55:53'),(238,'超级管理员-system','127.0.0.1','2019-09-27 09:03:14'),(239,'超级管理员-system','127.0.0.1','2019-09-27 09:05:30'),(240,'超级管理员-system','127.0.0.1','2019-09-27 09:13:24'),(241,'超级管理员-system','127.0.0.1','2019-09-27 11:40:15'),(256,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-19 03:48:34'),(257,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-19 03:49:21'),(258,'超级管理员-system','127.0.0.1','2020-07-19 03:50:29'),(259,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-19 06:50:41'),(260,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-19 07:33:16'),(261,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-19 07:45:15'),(262,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-19 12:04:11'),(263,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-19 14:37:40'),(264,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-19 15:00:15'),(265,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-20 11:20:22'),(266,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-20 12:20:06'),(267,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-20 12:43:52'),(268,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-20 13:09:41'),(269,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-20 14:27:28'),(270,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-20 14:28:20'),(271,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-20 14:33:42'),(272,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-21 13:34:28'),(273,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-21 13:40:52'),(274,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-21 13:45:16'),(275,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-21 13:47:49'),(276,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-21 13:53:40'),(277,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-22 12:32:00'),(278,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-22 12:57:12'),(279,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-22 13:20:44'),(280,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-22 13:21:28'),(281,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-22 13:29:53'),(282,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 12:29:40'),(283,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 12:46:06'),(284,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 12:48:58'),(285,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 12:51:03'),(286,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 12:59:08'),(287,'超级管理员-system','127.0.0.1','2020-07-23 13:02:07'),(288,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 13:20:41'),(289,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 13:23:08'),(290,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 13:31:17'),(291,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 13:35:58'),(292,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 13:44:46'),(293,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 13:46:09'),(294,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 13:51:08'),(295,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 13:53:45'),(296,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 13:56:53'),(297,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 14:00:45'),(298,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 14:02:54'),(299,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 14:06:45'),(300,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 14:44:50'),(301,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 14:46:47'),(302,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-23 14:47:50'),(303,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-24 11:42:56'),(304,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-24 11:47:46'),(305,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-24 11:51:30'),(306,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-24 11:53:42'),(307,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-24 11:56:02'),(308,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-24 11:57:13'),(309,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-24 14:15:17'),(310,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-24 14:38:17'),(311,'123456','192.169.222.58','2020-07-01 22:45:33'),(312,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-24 14:46:59'),(313,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-24 15:01:35'),(314,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-25 06:50:54'),(315,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-25 06:57:35'),(316,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-25 06:58:50'),(317,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-25 07:01:24'),(318,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-25 07:04:24'),(319,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-25 07:05:59'),(320,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-25 07:36:25'),(321,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-25 07:39:58'),(322,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-25 12:03:14'),(323,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-25 13:38:53'),(324,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-26 01:04:04'),(325,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-26 01:06:18'),(326,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-26 01:31:38'),(327,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-26 01:32:06'),(328,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-26 05:21:38'),(329,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-26 05:24:14'),(330,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-26 05:30:23'),(331,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-26 05:31:17'),(332,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-26 06:01:15'),(333,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-26 06:02:25'),(334,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-26 08:11:04'),(335,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-26 08:13:15'),(336,'黄学博-huangxuebo','0:0:0:0:0:0:0:1','2020-07-26 08:14:08'),(337,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-26 09:02:45'),(338,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-26 09:07:01'),(339,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-27 11:19:43'),(340,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-27 12:52:52'),(341,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-27 12:57:59'),(342,'王五-ww','0:0:0:0:0:0:0:1','2020-07-27 12:58:52'),(343,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-27 13:34:36'),(344,'刘八-lb','0:0:0:0:0:0:0:1','2020-07-27 13:36:25'),(345,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-27 13:37:27'),(346,'刘八-lb','0:0:0:0:0:0:0:1','2020-07-27 13:40:59'),(347,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-27 13:41:44'),(348,'刘八-lb','0:0:0:0:0:0:0:1','2020-07-27 13:41:51'),(349,'刘八-lb','0:0:0:0:0:0:0:1','2020-07-27 13:42:50'),(350,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-28 11:59:52'),(351,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-28 12:10:34'),(352,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-28 12:12:27'),(353,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-28 12:13:24'),(354,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-28 14:19:06'),(355,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-28 14:19:54'),(356,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-28 14:26:42'),(357,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-29 13:08:32'),(358,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-30 12:24:54'),(359,'超级管理员-system','0:0:0:0:0:0:0:1','2020-07-30 12:27:51'),(360,'超级管理员-system','192.168.1.109','2020-08-01 09:54:16'),(361,'超级管理员-system','192.168.1.109','2020-08-01 10:33:53'),(362,'超级管理员-system','192.168.1.109','2020-08-01 10:38:22'),(363,'超级管理员-system','192.168.1.109','2020-08-01 13:47:39'),(364,'超级管理员-system','192.168.1.109','2020-08-01 14:05:52'),(365,'超级管理员-system','192.168.1.109','2020-08-01 14:09:34'),(366,'超级管理员-system','192.168.1.109','2020-08-01 14:16:57'),(367,'刘八-lb','192.168.1.109','2020-08-01 14:51:14'),(368,'超级管理员-system','192.168.1.109','2020-08-01 14:51:28'),(369,'刘八-lb','192.168.1.109','2020-08-01 14:52:19'),(370,'超级管理员-system','192.168.1.109','2020-08-01 14:53:06'),(371,'超级管理员-system','192.168.1.109','2020-08-01 14:54:15'),(372,'刘八-lb','192.168.1.109','2020-08-01 14:54:26'),(373,'刘八-lb','192.168.1.109','2020-08-01 15:15:43'),(374,'超级管理员-system','192.168.1.109','2020-08-01 15:21:58'),(375,'刘八-lb','192.168.1.109','2020-08-01 15:22:08'),(376,'超级管理员-system','192.168.1.109','2020-08-01 17:22:31'),(377,'超级管理员-system','192.168.1.109','2020-08-01 17:29:28'),(378,'超级管理员-system','192.168.1.109','2020-08-01 23:31:05'),(379,'超级管理员-system','192.168.1.109','2020-08-01 23:35:56'),(380,'超级管理员-system','192.168.1.109','2020-08-01 23:37:21'),(381,'超级管理员-system','192.168.1.109','2020-08-02 09:17:03'),(382,'超级管理员-system','192.168.1.109','2020-08-02 18:30:20'),(383,'超级管理员-system','192.168.1.109','2020-08-02 19:06:53'),(384,'超级管理员-system','192.168.1.109','2020-08-02 19:10:47'),(385,'超级管理员-system','192.168.1.109','2020-08-02 19:52:56'),(386,'超级管理员-system','192.168.1.109','2020-08-02 20:18:19'),(387,'超级管理员-system','192.168.1.109','2020-08-02 20:29:47'),(388,'超级管理员-system','192.168.1.109','2020-08-02 20:43:32'),(389,'超级管理员-system','192.168.1.109','2020-08-02 20:44:15'),(390,'超级管理员-system','192.168.1.109','2020-08-02 21:27:26'),(391,'超级管理员-system','192.168.1.109','2020-08-02 21:37:14'),(392,'超级管理员-system','192.168.1.109','2020-08-04 19:58:48'),(393,'刘八-lb','192.168.1.109','2020-08-04 20:00:01'),(394,'超级管理员-system','192.168.1.109','2020-08-04 21:19:20'),(395,'超级管理员-system','192.168.1.109','2020-08-04 21:20:37'),(396,'刘八-lb','192.168.1.109','2020-08-04 21:21:34'),(397,'刘八-lb','192.168.1.109','2020-08-05 22:12:31'),(398,'超级管理员-system','192.168.1.109','2020-08-05 22:18:09'),(399,'刘八-lb','192.168.1.109','2020-08-05 22:18:51'),(400,'超级管理员-system','192.168.1.109','2020-08-06 20:30:22'),(401,'超级管理员-system','192.168.1.109','2020-08-06 20:37:14'),(402,'刘八-lb','192.168.1.109','2020-08-06 20:37:57'),(403,'超级管理员-system','192.168.1.109','2020-08-06 21:09:31'),(404,'刘八-lb','192.168.1.109','2020-08-06 21:09:52'),(405,'超级管理员-system','192.168.1.109','2020-08-06 21:32:50'),(406,'刘八-lb','192.168.1.109','2020-08-06 21:37:05'),(407,'刘八-lb','192.168.1.109','2020-08-06 21:40:36'),(408,'刘八-lb','192.168.1.109','2020-08-06 21:47:18'),(409,'超级管理员-system','192.168.222.58','2020-08-07 09:18:24'),(410,'刘八-lb','192.168.222.58','2020-08-07 09:19:20'),(411,'超级管理员-system','192.168.222.58','2020-08-07 09:28:19'),(412,'刘八-lb','192.168.222.58','2020-08-07 09:28:38'),(413,'刘八-lb','192.168.222.58','2020-08-07 11:12:35'),(414,'刘八-lb','192.168.222.58','2020-08-07 11:55:09'),(415,'刘八-lb','192.168.222.58','2020-08-07 12:09:12'),(416,'刘八-lb','192.168.222.58','2020-08-07 13:32:30'),(417,'超级管理员-system','192.168.222.58','2020-08-07 14:51:56'),(418,'刘八-lb','192.168.222.58','2020-08-07 14:52:05'),(419,'刘八-lb','192.168.222.58','2020-08-09 09:12:05'),(420,'超级管理员-system','192.168.222.58','2020-08-09 09:15:17'),(421,'超级管理员-system','192.168.222.58','2020-08-09 09:18:15'),(422,'刘八-lb','192.168.222.58','2020-08-09 09:24:08'),(423,'王五-ww','192.168.222.58','2020-08-09 09:25:04'),(424,'超级管理员-system','192.168.222.58','2020-08-09 09:25:13'),(425,'王五-ww','192.168.222.58','2020-08-09 09:25:31'),(426,'刘八-lb','192.168.222.58','2020-08-09 11:47:22'),(427,'王五-ww','192.168.222.58','2020-08-09 11:49:39'),(428,'王五-ww','192.168.222.58','2020-08-09 12:06:58'),(429,'王五-ww','192.168.222.58','2020-08-09 13:04:18'),(430,'李四-ls','192.168.222.58','2020-08-09 13:22:31'),(431,'王五-ww','192.168.222.58','2020-08-09 13:59:00'),(432,'李四-ls','192.168.222.58','2020-08-09 13:59:33'),(433,'刘八-lb','192.168.222.58','2020-08-09 14:26:31'),(434,'刘八-lb','192.168.222.58','2020-08-09 16:12:19'),(435,'刘八-lb','192.168.222.58','2020-08-09 16:20:53'),(436,'刘八-lb','192.168.222.58','2020-08-09 16:23:11'),(437,'王五-ww','192.168.222.58','2020-08-09 16:24:07'),(438,'李四-ls','192.168.222.58','2020-08-09 16:24:33'),(439,'刘八-lb','192.168.222.58','2020-08-09 16:39:41'),(440,'王五-ww','192.168.222.58','2020-08-09 16:52:59'),(441,'超级管理员-system','192.168.222.58','2020-08-09 17:01:57'),(442,'超级管理员-system','192.168.222.58','2020-08-10 11:21:03'),(443,'王五-ww','192.168.222.58','2020-08-10 13:02:45'),(444,'李四-ls','192.168.222.58','2020-08-10 13:08:25'),(445,'超级管理员-system','192.168.222.58','2020-08-10 14:38:53'),(446,'王五-ww','192.168.222.58','2020-08-10 14:46:34'),(447,'王五-ww','192.168.222.58','2020-08-10 14:57:14'),(448,'超级管理员-system','192.168.222.58','2020-08-10 15:12:52'),(449,'王五-ww','192.168.222.58','2020-08-10 15:14:27'),(450,'超级管理员-system','192.168.222.58','2020-08-10 15:14:34'),(451,'王五-ww','192.168.222.58','2020-08-10 15:15:17'),(452,'王五-ww','192.168.222.58','2020-08-10 15:32:15'),(453,'超级管理员-system','192.168.222.58','2020-08-10 16:09:49'),(454,'王五-ww','192.168.222.58','2020-08-11 09:30:11'),(455,'刘八-lb','192.168.222.58','2020-08-11 09:49:19'),(456,'刘八-lb','192.168.222.58','2020-08-11 10:28:14'),(457,'王五-ww','192.168.222.58','2020-08-11 10:31:01'),(458,'超级管理员-system','192.168.222.58','2020-08-11 10:36:03'),(459,'超级管理员-system','192.168.222.58','2020-08-11 10:36:48'),(460,'超级管理员-system','192.168.222.58','2020-08-11 10:37:12'),(461,'超级管理员-system','192.168.222.58','2020-08-11 10:38:30'),(462,'超级管理员-system','192.168.222.58','2020-08-11 10:39:45'),(463,'王五-ww','192.168.222.58','2020-08-11 10:42:06'),(464,'超级管理员-system','192.168.222.58','2020-08-11 11:11:50'),(465,'超级管理员-system','192.168.222.58','2020-08-11 11:13:22'),(466,'超级管理员-system','192.168.222.58','2020-08-11 12:15:35'),(467,'超级管理员-system','192.168.222.66','2020-08-19 09:09:14'),(468,'超级管理员-system','192.168.222.66','2020-08-19 09:49:43'),(469,'刘八-lb','192.168.222.66','2020-08-19 09:49:54'),(470,'王五-ww','192.168.222.66','2020-08-19 09:51:50'),(471,'李四-ls','192.168.222.66','2020-08-19 09:52:22'),(472,'刘八-lb','192.168.222.66','2020-08-19 09:53:09'),(473,'超级管理员-system','192.168.222.66','2020-08-19 16:09:37'),(474,'刘八-lb','192.168.222.66','2020-08-19 16:13:08'),(475,'王五-ww','192.168.222.66','2020-08-19 16:14:13'),(476,'李四-ls','192.168.222.66','2020-08-19 16:14:58'),(477,'刘八-lb','192.168.222.66','2020-08-19 16:15:34'),(478,'超级管理员-system','192.168.222.66','2020-08-19 16:16:42'),(479,'超级管理员-system','192.168.222.66','2020-08-20 09:38:01'),(480,'超级管理员-system','192.168.222.66','2020-08-20 09:44:21'),(481,'超级管理员-system','192.168.222.66','2020-08-20 10:47:05'),(482,'超级管理员-system','192.168.222.66','2020-08-20 10:53:57'),(483,'超级管理员-system','192.168.222.66','2020-08-20 11:06:07'),(484,'李四-ls','192.168.222.66','2020-08-20 11:22:31'),(485,'超级管理员-system','192.168.222.66','2020-08-20 11:22:44'),(486,'超级管理员-system','192.168.222.66','2020-08-20 11:27:22'),(487,'超级管理员-system','192.168.222.66','2020-08-20 11:31:12'),(488,'超级管理员-system','192.168.222.66','2020-08-20 11:32:20'),(489,'超级管理员-system','192.168.222.66','2020-08-20 11:35:10'),(490,'超级管理员-system','192.168.222.66','2020-08-20 11:35:59'),(491,'超级管理员-system','192.168.222.66','2020-08-20 11:41:21'),(492,'超级管理员-system','192.168.222.66','2020-08-20 11:50:28'),(493,'超级管理员-system','192.168.222.66','2020-08-20 12:01:10'),(494,'超级管理员-system','192.168.222.66','2020-08-20 12:01:42'),(495,'超级管理员-system','192.168.222.66','2020-08-20 12:03:18'),(496,'超级管理员-system','192.168.222.66','2020-08-20 13:19:09'),(497,'刘八-lb','192.168.222.66','2020-08-20 13:29:16'),(498,'刘八-lb','192.168.222.66','2020-08-20 13:48:57'),(499,'刘大八-lb','192.168.222.66','2020-08-20 13:52:38'),(500,'王五-ww','192.168.222.66','2020-08-20 13:56:27'),(501,'王五-ww','192.168.222.66','2020-08-20 14:00:38'),(502,'李四-ls','192.168.222.66','2020-08-20 14:00:51'),(503,'刘大八-lb','192.168.222.66','2020-08-20 14:00:55'),(504,'刘大八-lb','192.168.222.66','2020-08-20 14:04:29'),(505,'刘大八-lb','192.168.222.66','2020-08-20 14:11:47'),(506,'刘大八-lb','192.168.222.66','2020-08-20 14:17:55'),(507,'刘大八-lb','192.168.222.66','2020-08-20 16:40:26'),(508,'超级管理员-system','192.168.222.66','2020-08-20 16:43:48'),(509,'刘大八1-lb','192.168.222.66','2020-08-20 16:43:58'),(510,'刘大八1-lb','192.168.222.66','2020-08-20 16:45:39'),(511,'超级管理员-system','192.168.222.66','2020-08-20 16:48:01'),(512,'刘大八12-lb','192.168.222.66','2020-08-20 16:48:09'),(513,'超级管理员-system','192.168.222.66','2020-08-20 16:51:32'),(514,'刘大八123-lb','192.168.222.66','2020-08-20 16:51:57'),(515,'超级管理员-system','192.168.222.66','2020-08-20 16:52:14'),(516,'刘大八-lb','192.168.222.66','2020-08-20 16:53:10'),(517,'超级管理员-system','192.168.222.66','2020-08-20 16:56:12'),(518,'超级管理员-system','192.168.222.66','2020-08-20 17:04:53'),(519,'孙七-sq','192.168.222.66','2020-08-20 17:05:34'),(520,'赵六-zl','192.168.222.66','2020-08-20 17:05:53'),(521,'刘大八-lb','192.168.222.66','2020-08-21 10:52:25'),(522,'习大大-xidada','192.168.222.66','2020-08-21 11:01:11'),(523,'超级管理员-system','192.168.222.66','2020-08-21 11:01:20'),(524,'超级管理员-system','192.168.222.66','2020-08-21 11:01:52'),(525,'史诗-shishi','192.168.222.66','2020-08-21 11:02:55'),(526,'超级管理员-system','192.168.222.66','2020-08-21 11:03:45'),(527,'史诗-shishi','192.168.222.66','2020-08-21 11:04:05'),(528,'超级管理员-system','192.168.222.66','2020-08-21 11:04:26'),(529,'超级管理员-system','192.168.222.66','2020-08-21 11:09:13'),(530,'超级管理员-system','192.168.222.66','2020-08-21 11:16:15');
+
+/*Table structure for table `sys_notice` */
+
+DROP TABLE IF EXISTS `sys_notice`;
+
+CREATE TABLE `sys_notice` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) DEFAULT NULL,
+  `content` text,
+  `createtime` datetime DEFAULT NULL,
+  `opername` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+/*Data for the table `sys_notice` */
+
+insert  into `sys_notice`(`id`,`title`,`content`,`createtime`,`opername`) values (10,'关于系统V1.2更新公告','12312312<img src=\"/resources/layui/images/face/42.gif\" alt=\"[抓狂]\">','2018-08-07 00:00:00','超级管理员'),(11,'关于系统V1.1更新公告','21321321321<img src=\"/resources/layui/images/face/18.gif\" alt=\"[右哼哼]\">','2018-08-07 00:00:00','超级管理员'),(19,'123','<p>123</p>','2020-08-01 09:54:52','超级管理员'),(20,'312312','<p>213<img src=\"/Path/noticeImg/20200801095500wbqjc.jpg\" style=\"max-width: 100%;\"></p>','2020-08-01 09:55:01','超级管理员'),(21,'123','<p><img src=\"/Path/noticeImg/202008111115243d74w.jpg\" style=\"max-width:100%;\"><br></p>','2020-08-01 09:55:28','超级管理员'),(22,'《海燕》','<p><span style=\"font-family: 宋体; font-size: small;\">在苍茫的大海上，狂风卷集着乌云。在乌云和大海之间，海燕像黑色的闪电，在高傲地飞翔。</span><br style=\"font-family: 宋体; font-size: small;\"><span style=\"font-family: 宋体; font-size: small;\">　　一会儿翅膀碰着波浪，一会儿箭一般地直冲向乌云，它叫喊着，——就在这鸟儿勇敢的叫喊声里，乌云听出了欢乐。</span><br style=\"font-family: 宋体; font-size: small;\"><span style=\"font-family: 宋体; font-size: small;\">　　在这叫喊声里——充满着对暴风雨的渴望！在这叫喊声里，乌云听出了愤怒的力量、热情的火焰和胜利的信心。</span><br style=\"font-family: 宋体; font-size: small;\"><span style=\"font-family: 宋体; font-size: small;\">　　海鸥在暴风雨来临之前呻吟着，——呻吟着，它们在大海上飞窜，想把自己对暴风雨的恐惧，掩藏到大海深处。</span><br style=\"font-family: 宋体; font-size: small;\"><span style=\"font-family: 宋体; font-size: small;\">　　海鸭也在呻吟着，——它们这些海鸭啊，享受不了生活的战斗的欢乐：轰隆隆的雷声就把它们吓坏了。</span><br style=\"font-family: 宋体; font-size: small;\"><span style=\"font-family: 宋体; font-size: small;\">　　蠢笨的企鹅，胆怯地把肥胖的身体躲藏在悬崖底下……只有那高傲的海燕，勇敢地，自由自在地，在泛起白沫的大海上飞翔！</span><br style=\"font-family: 宋体; font-size: small;\"><span style=\"font-family: 宋体; font-size: small;\">　　乌云越来越暗，越来越低，向海面直压下来，而波浪一边歌唱，一边冲向高空，去迎接那雷声。</span><br style=\"font-family: 宋体; font-size: small;\"><span style=\"font-family: 宋体; font-size: small;\">　　雷声轰响。波浪在愤怒的飞沫中呼叫，跟狂风争鸣。看吧，狂风紧紧抱起一层层巨浪。恶狠狠地把它们甩到悬崖上，把这些大块的翡翠摔成尘雾和碎末。</span><br style=\"font-family: 宋体; font-size: small;\"><span style=\"font-family: 宋体; font-size: small;\">　　海燕叫喊着，飞翔着，像黑色的闪电，箭 一般地穿过乌云，翅膀掠起波浪的飞沫。</span><br style=\"font-family: 宋体; font-size: small;\"><span style=\"font-family: 宋体; font-size: small;\">　　看吧，它飞舞着，像个精灵，——高傲的、黑色的暴风雨的精灵，——它在大笑，它又在号叫……它笑那些乌云，它因为欢乐而号叫！</span><br style=\"font-family: 宋体; font-size: small;\"><span style=\"font-family: 宋体; font-size: small;\">　　这个敏感的精灵，——它从雷声的震怒里，早就听出了困乏，它深信，乌云遮不住太阳，——是的，遮不住的！</span><br style=\"font-family: 宋体; font-size: small;\"><span style=\"font-family: 宋体; font-size: small;\">　　狂风吼叫……雷声轰响……</span><br style=\"font-family: 宋体; font-size: small;\"><span style=\"font-family: 宋体; font-size: small;\">　　一堆堆乌云，像青色的火焰，在无底的大海上燃烧。大海抓住闪电的箭光，把它们熄灭在自己的深渊里。这些闪电的影子，活像一条条火蛇，在大海里蜿蜒游动，一晃就消失了。</span><br style=\"font-family: 宋体; font-size: small;\"><span style=\"font-family: 宋体; font-size: small;\">　　——暴风雨！暴风雨就要来啦！</span><br style=\"font-family: 宋体; font-size: small;\"><span style=\"font-family: 宋体; font-size: small;\">　　这是勇敢的海燕，在怒吼的大海上，在闪电中间，高傲地飞翔；这是胜利的预言家在叫喊：</span><br style=\"font-family: 宋体; font-size: small;\"><span style=\"font-family: 宋体; font-size: small;\">　　——让暴风雨来得更猛烈些吧！</span>&nbsp;&nbsp;<br></p>','2020-08-11 11:17:17','超级管理员'),(23,'《致橡树》','<table align=\"center\" border=\"0\" bordercolordark=\"#e6e6fa\" bordercolorlight=\"#e6e6fa\" cellpadding=\"1\" cellspacing=\"2\" style=\"margin-top: 0px; margin-bottom: 0px; font-family: Arial, Helvetica, sans-serif; border-width: 0px; border-style: initial; border-color: rgb(255, 255, 255); width: 558px; height: 1014px;\"><tbody><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">【<strong>原诗</strong>】</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">【<strong>Johanna Yueh 修改版</strong>】</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\"><strong>致橡树</strong></td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\"><strong>To the Oak Tree</strong></td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">作者：舒婷</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\"><em>By Shu Ting</em></td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">&nbsp;</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">&nbsp;</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">我如果爱你——</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">If I love you --</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">绝不像攀援的凌霄花</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">I will never be a clinging trumpet creeper</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">借你的高枝炫耀自己</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Using your high boughs to show off my height</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">&nbsp;</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">&nbsp;</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">我如果爱你——</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">If I love you --</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">绝不学痴情的鸟儿</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">I will never be a spoony bird</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">为绿荫重复单调的歌曲</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Repeating a monotonous song for green shade</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">&nbsp;</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">&nbsp;</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">也不止像泉源</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Or be a spring</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">常年送来清凉的慰藉</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Bringing cool solace all year long</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">也不止像险峰</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Or be a steep peak</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">增加你的高度，衬托你的威仪</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Increasing your stature, reflecting your eminence</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">甚至日光</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Even the sunlight</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">甚至春雨</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Even the spring rain</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">不，这些都还不够</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">No, all these are not enough</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">&nbsp;</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">&nbsp;</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">我必须是你近旁的一株木棉</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">I must be a ceiba tree beside you</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">作为树的形象和你站在一起</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Be the image of a tree standing together with you</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">根，紧握在地下</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Our roots, entwined underground</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">叶，相触在云里</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Our leaves, touching in the clouds</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">每一阵风过</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">With each gust of wind</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">我们都互相致意</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">We greet each other</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">但没有人</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">But nobody</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">听懂我们的言语</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Can understand our words</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">&nbsp;</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">&nbsp;</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">你有你的铜枝铁干</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">You\'ll have your copper branches and iron trunk</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">像刀、像剑，也像戟</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Like knives, like swords, like halberds, too</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">我有我的红硕花朵</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">I\'ll have my crimson flowers</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">像沉重的叹息</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Like heavy sighs</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">又像英勇的火炬</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">And valiant torches</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">我们分担寒潮、风雷、霹雳</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">We\'ll share cold spells, storms and thunder</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">我们共享雾霭、流岚、虹霓</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">We\'ll share mists, hazes and rainbows</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">仿佛永远分离</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Seemingly always apart</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">却又终身相依</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">But also forever interdependent</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">&nbsp;</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">&nbsp;</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">这才是伟大的爱情</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Only this can be great love</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">坚贞就在这里</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">The loyalty is here</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">爱——</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">Love --</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">不仅爱你伟岸的身躯</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">I love not only your strapping stature</td></tr><tr><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">也爱你坚持的位置，足下的土地</td><td align=\"left\" valign=\"top\" style=\"padding: 0px; min-height: 16px;\">But also your firm stand, the earth beneath you</td></tr></tbody></table>','2020-08-11 11:24:58','超级管理员'),(24,'343','<p><img src=\"/Path/noticeImg/20200819165543f5svi.jpg\" style=\"max-width:100%;\"><br></p>','2020-08-19 16:55:46','超级管理员');
+
+/*Table structure for table `sys_permission` */
+
+DROP TABLE IF EXISTS `sys_permission`;
+
+CREATE TABLE `sys_permission` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `pid` int(11) DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL COMMENT '权限类型[menu/permission]',
+  `title` varchar(255) DEFAULT NULL,
+  `percode` varchar(255) DEFAULT NULL COMMENT '权限编码[只有type= permission才有  user:view]',
+  `icon` varchar(255) DEFAULT NULL,
+  `href` varchar(255) DEFAULT NULL,
+  `target` varchar(255) DEFAULT NULL,
+  `open` int(11) DEFAULT NULL,
+  `ordernum` int(11) DEFAULT NULL,
+  `available` int(11) DEFAULT NULL COMMENT '状态【0不可用1可用】',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+/*Data for the table `sys_permission` */
+
+insert  into `sys_permission`(`id`,`pid`,`type`,`title`,`percode`,`icon`,`href`,`target`,`open`,`ordernum`,`available`) values (1,0,'menu','管理系统',NULL,'&#xe68e;','','',1,1,1),(2,1,'menu','基础管理',NULL,'&#xe857;','','',0,2,1),(3,1,'menu','流程管理',NULL,'&#xe645;','','',0,3,1),(4,1,'menu','审批管理',NULL,'&#xe611;','','',0,4,1),(5,1,'menu','系统管理',NULL,'&#xe614;','','',0,5,1),(6,1,'menu','其它管理',NULL,'&#xe628;','','',0,6,1),(7,2,'menu','客户管理',NULL,'&#xe651;','/bus/toCustomerManager','',0,7,1),(8,2,'menu','供应商管理',NULL,'&#xe658;','/bus/toProviderManager','',0,8,1),(9,2,'menu','商品管理',NULL,'&#xe657;','/bus/toGoodsManager','',0,9,1),(10,3,'menu','流程管理',NULL,'&#xe756;','/sys/toWorkFlowManager','',0,10,1),(12,4,'menu','请假单管理',NULL,'&#xe65b;','/sys/toLeaveBillManager','',0,12,1),(13,4,'menu','我的待办任务',NULL,'&#xe770;','/sys/toTaskManager','',0,13,1),(14,5,'menu','部门管理',NULL,'&#xe770;','/sys/toDeptManager','',0,14,1),(15,5,'menu','菜单管理',NULL,'&#xe857;','/sys/toMenuManager','',0,15,1),(16,5,'menu','权限管理','','&#xe857;','/sys/toPermissionManager','',0,16,1),(17,5,'menu','角色管理','','&#xe650;','/sys/toRoleManager','',0,17,1),(18,5,'menu','用户管理','','&#xe612;','/sys/toUserManager','',0,18,1),(21,6,'menu','登陆日志',NULL,'&#xe675;','/sys/toLoginfoManager','',0,21,1),(22,6,'menu','系统公告',NULL,'&#xe756;','/sys/toNoticeManager',NULL,0,22,1),(23,6,'menu','图标管理',NULL,'&#xe670;','../resources/page/icon.html',NULL,0,23,1),(30,14,'permission','添加部门','dept:create','',NULL,NULL,0,24,1),(31,14,'permission','修改部门','dept:update','',NULL,NULL,0,26,1),(32,14,'permission','删除部门','dept:delete','',NULL,NULL,0,27,1),(34,15,'permission','添加菜单','menu:create','','','',0,29,1),(35,15,'permission','修改菜单','menu:update','',NULL,NULL,0,30,1),(36,15,'permission','删除菜单','menu:delete','',NULL,NULL,0,31,1),(38,16,'permission','添加权限','permission:create','',NULL,NULL,0,33,1),(39,16,'permission','修改权限','permission:update','',NULL,NULL,0,34,1),(40,16,'permission','删除权限','permission:delete','',NULL,NULL,0,35,1),(42,17,'permission','添加角色','role:create','',NULL,NULL,0,37,1),(43,17,'permission','修改角色','role:update','',NULL,NULL,0,38,1),(44,17,'permission','角色删除','role:delete','',NULL,NULL,0,39,1),(46,17,'permission','分配权限','role:selectPermission','',NULL,NULL,0,41,1),(47,18,'permission','添加用户','user:create','',NULL,NULL,0,42,1),(48,18,'permission','修改用户','user:update','',NULL,NULL,0,43,1),(49,18,'permission','删除用户','user:delete','',NULL,NULL,0,44,1),(51,18,'permission','用户分配角色','user:selectRole','',NULL,NULL,0,46,1),(52,18,'permission','重置密码','user:resetPwd',NULL,NULL,NULL,0,47,1),(53,14,'permission','部门查询','dept:view',NULL,NULL,NULL,0,48,1),(54,15,'permission','菜单查询','menu:view',NULL,NULL,NULL,0,49,1),(55,16,'permission','权限查询','permission:view',NULL,NULL,NULL,0,50,1),(56,17,'permission','角色查询','role:view',NULL,NULL,NULL,0,51,1),(57,18,'permission','用户查询','user:view',NULL,NULL,NULL,0,52,1),(68,7,'permission','客户查询','customer:view',NULL,NULL,NULL,NULL,60,1),(69,7,'permission','客户添加','customer:create',NULL,NULL,NULL,NULL,61,1),(70,7,'permission','客户修改','customer:update',NULL,NULL,NULL,NULL,62,1),(71,7,'permission','客户删除','customer:delete',NULL,NULL,NULL,NULL,63,1),(73,21,'permission','日志查询','info:view',NULL,NULL,NULL,NULL,65,1),(74,21,'permission','日志删除','info:delete',NULL,NULL,NULL,NULL,66,1),(75,21,'permission','日志批量删除','info:batchdelete',NULL,NULL,NULL,NULL,67,1),(76,22,'permission','公告查询','notice:view',NULL,NULL,NULL,NULL,68,1),(77,22,'permission','公告添加','notice:create',NULL,NULL,NULL,NULL,69,1),(78,22,'permission','公告修改','notice:update',NULL,NULL,NULL,NULL,70,1),(79,22,'permission','公告删除','notice:delete',NULL,NULL,NULL,NULL,71,1),(81,8,'permission','供应商查询','provider:view',NULL,NULL,NULL,NULL,73,1),(82,8,'permission','供应商添加','provider:create',NULL,NULL,NULL,NULL,74,1),(83,8,'permission','供应商修改','provider:update',NULL,NULL,NULL,NULL,75,1),(84,8,'permission','供应商删除','provider:delete',NULL,NULL,NULL,NULL,76,1),(86,22,'permission','公告查看','notice:viewnotice',NULL,NULL,NULL,NULL,78,1),(91,9,'permission','商品查询','goods:view',NULL,NULL,NULL,0,79,1),(92,9,'permission','商品添加','goods:create',NULL,NULL,NULL,0,80,1),(95,5,'menu','缓存管理',NULL,'&#xe681;','/sys/toCacheManager','',1,82,1),(96,4,'menu','我的审批记录',NULL,'&#xe691;','/sys/toTaskRecordManager','',1,83,1);
+
+/*Table structure for table `sys_role` */
+
+DROP TABLE IF EXISTS `sys_role`;
+
+CREATE TABLE `sys_role` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `remark` varchar(255) DEFAULT NULL,
+  `available` int(11) DEFAULT NULL,
+  `createtime` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+/*Data for the table `sys_role` */
+
+insert  into `sys_role`(`id`,`name`,`remark`,`available`,`createtime`) values (1,'超级管理员','拥有所有菜单权限',1,'2019-04-10 14:06:32'),(4,'基础数据管理员','基础数据管理员',1,'2019-04-10 14:06:32'),(5,'仓库管理员','仓库管理员',1,'2019-04-10 14:06:32'),(6,'销售管理员','销售管理员',1,'2019-04-10 14:06:32'),(7,'系统管理员','系统管理员',1,'2019-04-10 14:06:32'),(8,'11','22',1,'2020-07-24 14:39:02');
+
+/*Table structure for table `sys_role_permission` */
+
+DROP TABLE IF EXISTS `sys_role_permission`;
+
+CREATE TABLE `sys_role_permission` (
+  `rid` int(11) NOT NULL,
+  `pid` int(11) NOT NULL,
+  PRIMARY KEY (`pid`,`rid`) USING BTREE,
+  KEY `FK_tcsr9ucxypb3ce1q5qngsfk33` (`rid`) USING BTREE,
+  CONSTRAINT `sys_role_permission_ibfk_1` FOREIGN KEY (`pid`) REFERENCES `sys_permission` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `sys_role_permission_ibfk_2` FOREIGN KEY (`rid`) REFERENCES `sys_role` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+/*Data for the table `sys_role_permission` */
+
+insert  into `sys_role_permission`(`rid`,`pid`) values (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),(1,9),(1,10),(1,12),(1,13),(1,14),(1,15),(1,16),(1,17),(1,18),(1,21),(1,22),(1,23),(1,30),(1,31),(1,32),(1,34),(1,35),(1,36),(1,38),(1,39),(1,40),(1,42),(1,43),(1,44),(1,46),(1,47),(1,48),(1,49),(1,51),(1,52),(1,53),(1,54),(1,55),(1,56),(1,57),(1,68),(1,69),(1,70),(1,71),(1,73),(1,74),(1,75),(1,76),(1,77),(1,78),(1,79),(1,81),(1,82),(1,83),(1,84),(1,86),(1,91),(1,92),(4,1),(4,2),(4,7),(4,8),(4,9),(4,68),(4,69),(4,70),(4,71),(4,81),(4,82),(4,83),(4,84),(4,91),(4,92),(5,1),(5,3),(5,4),(5,10),(5,12),(5,13),(6,1),(6,4),(6,12),(6,13),(7,1),(7,5),(7,6),(7,14),(7,15),(7,16),(7,17),(7,18),(7,21),(7,22),(7,23),(7,30),(7,31),(7,34),(7,35),(7,36),(7,38),(7,39),(7,40),(7,42),(7,43),(7,44),(7,46),(7,47),(7,48),(7,49),(7,51),(7,52),(7,53),(7,54),(7,55),(7,56),(7,57),(7,73),(7,74),(7,75),(7,76),(7,77),(7,78),(7,79),(7,86),(8,1),(8,4),(8,5),(8,12),(8,13),(8,14),(8,31),(8,32),(8,96);
+
+/*Table structure for table `sys_role_user` */
+
+DROP TABLE IF EXISTS `sys_role_user`;
+
+CREATE TABLE `sys_role_user` (
+  `rid` int(11) NOT NULL,
+  `uid` int(11) NOT NULL,
+  PRIMARY KEY (`uid`,`rid`) USING BTREE,
+  KEY `FK_203gdpkwgtow7nxlo2oap5jru` (`rid`) USING BTREE,
+  CONSTRAINT `sys_role_user_ibfk_1` FOREIGN KEY (`rid`) REFERENCES `sys_role` (`id`),
+  CONSTRAINT `sys_role_user_ibfk_2` FOREIGN KEY (`uid`) REFERENCES `sys_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+/*Data for the table `sys_role_user` */
+
+insert  into `sys_role_user`(`rid`,`uid`) values (1,2),(4,3),(5,4),(6,5),(6,8),(7,8),(8,3),(8,6);
+
+/*Table structure for table `sys_user` */
+
+DROP TABLE IF EXISTS `sys_user`;
+
+CREATE TABLE `sys_user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `loginname` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `sex` int(11) DEFAULT NULL,
+  `remark` varchar(255) DEFAULT NULL,
+  `pwd` varchar(255) DEFAULT NULL,
+  `deptid` int(11) DEFAULT NULL,
+  `hiredate` datetime DEFAULT NULL,
+  `mgr` int(11) DEFAULT NULL,
+  `available` int(11) DEFAULT '1',
+  `ordernum` int(11) DEFAULT NULL,
+  `type` int(255) DEFAULT NULL COMMENT '用户类型[0超级管理员1，管理员，2普通用户]',
+  `imgpath` varchar(255) DEFAULT NULL COMMENT '头像地址',
+  `salt` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `FK_3rrcpvho2w1mx1sfiuuyir1h` (`deptid`) USING BTREE,
+  CONSTRAINT `sys_user_ibfk_1` FOREIGN KEY (`deptid`) REFERENCES `sys_dept` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+/*Data for the table `sys_user` */
+
+insert  into `sys_user`(`id`,`name`,`loginname`,`address`,`sex`,`remark`,`pwd`,`deptid`,`hiredate`,`mgr`,`available`,`ordernum`,`type`,`imgpath`,`salt`) values (1,'超级管理员','system','系统深处的男人',1,'超级管理员','532ac00e86893901af5f0be6b704dbc7',1,'2018-06-25 11:06:34',NULL,1,1,0,'images/defaultimg.jpg','04A93C74C8294AA09A8B974FD1F4ECBB'),(2,'李四','ls','武汉',0,'KING','b07b848d69e0553b80e601d31571797e',1,'2018-06-25 11:06:36',NULL,1,2,1,'images/defaultimg.jpg','FC1EE06AE4354D3FBF7FDD15C8FCDA71'),(3,'王五','ww','武汉',0,'管理','3c3f971eae61e097f59d52360323f1c8',3,'2018-06-25 11:06:38',4,1,3,1,'images/defaultimg.jpg','3D5F956E053C4E85B7D2681386E235D2'),(4,'赵六','zl','武汉',1,'程序员','2e969742a7ea0c7376e9551d578e05dd',4,'2018-06-25 11:06:40',3,1,4,1,'images/defaultimg.jpg','6480EE1391E34B0886ACADA501E31145'),(5,'孙七','sq','武汉',1,'程序员','47b4c1ad6e4b54dd9387a09cb5a03de1',2,'2018-06-25 11:06:43',4,1,5,1,'images/defaultimg.jpg','FE3476C3E3674E5690C737C269FCBF8E'),(6,'刘大八','lb','深圳2',0,'程序员2','bcee2b05b4b591106829aec69a094806',4,'2018-08-06 11:21:12',3,1,6,1,'images/defaultimg.jpg','E6CCF54A09894D998225878BBD139B20'),(8,'习大大','xidada','北京',1,'北京','83c6312d3124527c06f9f32c9f0f4122',7,'2019-09-25 08:47:38',NULL,1,7,1,'images/defaultimg.jpg','9A77217BD788418683C5D69CDC85B4AA'),(9,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL),(10,'史诗','shishi','12',0,'12','5b0c002c6391065f15fd179b6ce0a604',4,'2020-08-21 11:02:49',3,0,8,1,'images/defaultimg.jpg','D43C25A4F73F46CBA55FDC51B3E473A1');
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;

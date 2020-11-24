@@ -1,0 +1,98 @@
+#配置数据源的属性
+spring:
+  datasource:
+    druid:
+      driver-class-name: com.mysql.jdbc.Driver
+      url: jdbc:mysql://127.0.0.1:3306/oa?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=UTC
+      username: root
+      password: 123456
+      max-active: 20
+      max-wait: 5000
+      initial-size: 1
+      filters: stat,log4j,wall
+      validationQuery: SELECT 'x'   #验证连接
+      enable: true
+      #监控配置
+      stat-view-servlet:
+        enabled: true
+        login-username: root
+        login-password: 123456
+        allow:
+        deny:
+        url-pattern: /druid/*
+  #设置文件大小 默认是1M maxFileSize 是单个文件大小，maxRequestSize是设置总上传的文件大小
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+  ##工作流activiti配置
+  activiti:
+#    #自动检查、部署流程定义文件，检查resuorces->processes下是否有流程定义文件，没有则false(默认是true)
+    check-process-definitions: false
+#    #自动更新数据库表结构(默认是true)
+##    false： false为默认值，设置为该值后，Activiti在启动时，会对比数据库表中保存的版本，如果没有表或者版本不匹配时，将在启动时抛出异常。
+##    true： 设置为该值后，Activiti会对数据库中所有的表进行更新，如果表不存在，则Activiti会自动创建。
+##    create-drop： Activiti启动时，会执行数据库表的创建操作，在Activiti关闭时，执行数据库表的删除操作。
+##    drop-create： Activiti启动时，删除原来的旧表，然后在创建新表（不需要手动关闭引擎），可理解为数据库Activiti相关表的初始化。
+    database-schema-update: true
+    #保存历史数据级别设置为full最高级别，便于历史数据的追溯
+#    none：不保存任何的历史数据，因此，在流程执行过程中，这是最高效的。
+#    activity：级别高于none，保存流程实例与流程行为，其他数据不保存。
+#    audit：除activity级别会保存的数据外，还会保存全部的流程任务及其属性。audit为history的默认值。
+#    full：保存历史数据的最高级别，除了会保存audit级别的数据外，还会保存其他全部流程相关的细节数据，包括一些流程参数等。
+    history-level: full
+  #    # 检测身份信息表是否存在
+#    db-identity-used: false
+#    #流程定义文件的存放目录前缀(默认目录是resource下的processes目录,在自定义目录存放的情况下可配置此属性指定)
+#    process-definition-location-prefix: classpath:/processes/
+#    #流程定义文件的存放目录后缀，默认支持**.bpmn20.xml和**.bpmn格式
+#    #process-definition-location-suffixes:
+
+
+
+  #thymeleaf的配置
+  thymeleaf:
+    cache: false
+    enabled: true
+    prefix: classpath:/templates/
+    suffix: .html
+  #      web-stat-filter:
+  #        enabled: true
+  #        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+#配置mybatisplus
+mybatis-plus:
+  mapper-locations: classpath*:mapper.sys/*Mapper.xml
+  global-config:
+    db-config:
+      id-type: auto
+    banner: true
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+#shiro的配置
+shiro:
+  hash-algorithm-name: md5
+  hash-iterations: 2
+  anon-urls:
+    - /index.html*
+    - /sys/toLogin*
+    - /login/login*
+    - /login/getCode*
+    - /resources/**
+#    - /workFlow/**
+  login-url: /index.html
+  log-out-url: /login/logout*
+  authc-ulrs:
+    - /**
+
+
+
+
+main:
+  allow-bean-definition-overriding: true
