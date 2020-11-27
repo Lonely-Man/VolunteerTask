@@ -3,6 +3,7 @@ package com.sxt.sys.domain;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -21,21 +22,14 @@ import java.util.Date;
 @Accessors(chain = true)
 @TableName("task_volunteer")
 @ToString
+@Builder
 public class TaskToVolunteer implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
-    private Date createDate = new Date();
-    private Date updateDate = new Date();
-    private int taskId;
-    private int volunteerId;
-    private Date startDate;
-    private Date endDate;
-    private String address;
-    private Date firstClockDate;
-    private Date lastClockDate;
-    private Date firstClockAddress;
-    private Date lastClockAddress;
+    private String taskId;
+    private String openId;
+    private boolean isChecked;
 }

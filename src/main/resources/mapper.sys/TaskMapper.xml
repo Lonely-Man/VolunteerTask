@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sxt.sys.mapper.TaskMapper">
+    <select id="searchByAppTaskReq" resultType="com.sxt.sys.domain.Task">
+        select t.* from task t left join task_volunteer tv on t.id=tv.taskId
+        where 1=1
+        <if test="isSignUp==true">
+            and tv.openId=#{openId}
+            <if test="isChecked==true">
+                and tv.isChecked=1
+            </if>
+        </if>
+        <if test="isEnd==true">
+            and DATE_FORMAT(t.endDate,'%Y-%m-%d') &lt; DATE_FORMAT(NOW(),'%Y-%m-%d')
+        </if>
+    </select>
+</mapper>

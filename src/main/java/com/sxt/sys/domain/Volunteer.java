@@ -30,8 +30,14 @@ public class Volunteer implements Serializable {
     private Date createDate=new Date();
     private Date updateDate=new Date();
     private String name;
-    private String appId;
+    private String openId;
     private String idCard;
     private String phoneNumber;
     private boolean isChecked;
+    public void copyParam(Volunteer volunteerParam){
+        this.setPhoneNumber(volunteerParam.getPhoneNumber());
+        this.setName(volunteerParam.getName());
+        this.setUpdateDate(new Date());
+        this.setIdCard(volunteerParam.getIdCard());
+    }
 }

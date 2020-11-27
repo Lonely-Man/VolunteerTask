@@ -1,6 +1,6 @@
 package com.sxt.sys.service;
 
-import com.sxt.sys.Request.VolunteerQueryRequest;
+import com.sxt.sys.request.VolunteerQueryRequest;
 import com.sxt.sys.domain.Volunteer;
 
 import java.util.List;
@@ -16,4 +16,11 @@ public interface VolunteerService {
 
     void   updateById(Volunteer volunteer);
     void checkVolunteers(List<Integer> ids);
+    Volunteer findByOpenId(String openId);
+
+    /**
+     * 保存微信公众号来的志愿者信息
+     * @param volunteer
+     */
+    void saveVolunteer(Volunteer volunteer);
 }

@@ -1,7 +1,5 @@
 package com.sxt;
 
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.ProcessEngineConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -12,7 +10,6 @@ class ApplicationTests {
 	void contextLoads() {
 
 	}
-
 
 
 }

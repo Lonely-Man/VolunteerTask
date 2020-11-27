@@ -1,4 +1,4 @@
-package com.sxt.sys.Request;
+package com.sxt.sys.request;
 
 import lombok.Data;
 

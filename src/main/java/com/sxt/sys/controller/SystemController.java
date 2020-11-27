@@ -7,6 +7,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("sys")
 public class SystemController {
 	/**
+	 * 跳转到活动管理
+	 *
+	 */
+	@RequestMapping("toTaskManager")
+	public String toTaskManager(){
+		return "system/task/taskManager";
+	}
+	/**
+	 * 跳转到志愿者管理
+	 *
+	 */
+	@RequestMapping("toVolunteerManager")
+	public String toVolunteerManager(){
+		return "system/volunteer/volunteerManager";
+	}
+	/**
 	 * 跳转到登录页面
 	 */
 	@RequestMapping("toLogin")
@@ -183,13 +199,6 @@ public class SystemController {
 		return "system/workFlow/workFlowManager";
 	}
 
-	/*
-	 * 跳转到代办任务
-	 */
-	@RequestMapping("toTaskManager")
-	public String toTaskManager() {
-		return "system/workFlow/taskManager";
-	}
 
 	/*
 	 * 跳转到查看流程图
