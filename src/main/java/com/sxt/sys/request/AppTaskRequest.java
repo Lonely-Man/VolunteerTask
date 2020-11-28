@@ -12,9 +12,9 @@ public class AppTaskRequest {
     //用户openId
     private String openId;
     //是否参与
-    private boolean isChecked;
+    private Boolean checked;
     //是否报名
-    private boolean isSignUp;
+    private Boolean signUp;
     //是否结束
-    private boolean isEnd;
+    private Boolean end;
 }

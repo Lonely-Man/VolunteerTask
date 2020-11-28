@@ -29,7 +29,7 @@ public class TaskToVolunteer implements Serializable {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
-    private String taskId;
+    private long taskId;
     private String openId;
-    private boolean isChecked;
+    private boolean checked;
 }

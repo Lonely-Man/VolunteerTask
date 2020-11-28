@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.sxt.sys.mapper.TaskMapper">
-    <select id="searchByAppTaskReq" resultType="com.sxt.sys.domain.Task">
-        select t.* from task t left join task_volunteer tv on t.id=tv.taskId
+    <select id="searchByAppTaskReq" resultType="com.sxt.sys.controller.response.TaskResponse">
+        select t.*,tv.checked  from task t left join task_volunteer tv on t.id=tv.task_id
         where 1=1
-        <if test="isSignUp==true">
-            and tv.openId=#{openId}
-            <if test="isChecked==true">
-                and tv.isChecked=1
+        <if test="signUp==true">
+            and tv.open_id=#{openId}
+            <if test="checked==true">
+               and  tv.checked=1
+            </if>
+            <if test="checked==false">
+                and  tv.checked=0
             </if>
         </if>
-        <if test="isEnd==true">
-            and DATE_FORMAT(t.endDate,'%Y-%m-%d') &lt; DATE_FORMAT(NOW(),'%Y-%m-%d')
+        <if test="signUp==false">
+            and (tv.open_id !=#{openId} or tv.open_id is null)
+        </if>
+        <if test="end!=null and end==true">
+            and DATE_FORMAT(t.end_date,'%Y-%m-%d') &lt; DATE_FORMAT(NOW(),'%Y-%m-%d')
+        </if>
+        <if test="end!=null and end==false">
+            and DATE_FORMAT(t.end_date,'%Y-%m-%d') &gt; DATE_FORMAT(NOW(),'%Y-%m-%d')
         </if>
     </select>
 </mapper>

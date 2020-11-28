@@ -83,6 +83,7 @@ shiro:
     - /index.html*
     - /sys/toLogin*
     - /login/login*
+    - /app/**
     - /login/getCode*
     - /resources/**
 #    - /workFlow/**

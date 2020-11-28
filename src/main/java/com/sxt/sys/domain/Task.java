@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -42,10 +43,12 @@ public class Task implements Serializable {
     //开始时间
     @NotNull(message = "开始时间不能为空")
     @Valid
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startDate;
     //结束时间
     @NotNull(message = "结束时间不能为空")
     @Valid
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endDate;
     //活动内容
     private String content;
@@ -68,5 +71,6 @@ public class Task implements Serializable {
         this.setLongitude(task.getLongitude());
         this.setStartDate(task.getStartDate());
         this.setEndDate(task.getEndDate());
+        this.setTotalNum(task.getTotalNum());
     }
 }
