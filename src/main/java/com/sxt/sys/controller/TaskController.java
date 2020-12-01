@@ -27,7 +27,7 @@ public class TaskController {
      * @return
      */
     @PostMapping("/signUp")
-    public DataGridView save(@RequestBody SignUpRequest signUpRequest) {
+    public DataGridView signUp(@RequestBody SignUpRequest signUpRequest) {
 
         boolean isSignUp = taskService.isSignUp(signUpRequest.getOpenId(), signUpRequest.getTaskId());
         if(isSignUp){
@@ -37,8 +37,16 @@ public class TaskController {
         List<TaskResponse> tasks = taskService.searchNewTask(signUpRequest.getOpenId());
         return DataGridView.builder().data(tasks).success(true).msg("报名成功").build();
     }
-
-
+    /**
+     * 取消活动报名
+     * @return
+     */
+    @PostMapping("/cancelSignUp")
+    public DataGridView cancelSignUp(@RequestBody SignUpRequest signUpRequest) {
+        taskService.cancelSignUp(signUpRequest.getOpenId(),signUpRequest.getTaskId());
+        List<TaskResponse> tasks = taskService.searchNewTask(signUpRequest.getOpenId());
+        return DataGridView.builder().data(tasks).success(true).msg("报名成功").build();
+    }
     @GetMapping("/myTask")
     public DataGridView searchByReq(@RequestParam("openId") String openId) {
         System.out.println("openid**********"+openId);
