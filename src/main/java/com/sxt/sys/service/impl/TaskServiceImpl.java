@@ -59,6 +59,14 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     @Override
+    public void cancelSignUp(String openId, long taskId) {
+        List<TaskToVolunteer> taskToVolunteers = taskToVolunteerMapper.selectByOpenIdAndTaskId(openId, taskId);
+        for(TaskToVolunteer taskToVolunteer: taskToVolunteers){
+            taskToVolunteerMapper.deleteById(taskToVolunteer.getId());
+        }
+    }
+
+    @Override
     public List<TaskResponse> searchByAppTaskReq(AppTaskRequest request) {
         return taskMapper.searchByAppTaskReq(request);
     }

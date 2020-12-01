@@ -20,6 +20,7 @@ public interface TaskService extends IService<Task> {
     void saveTask(Task task);
     boolean isSignUp(String openId,long taskId);
     void signUp(String openId,long taskId);
+    void cancelSignUp(String openId,long taskId);
     List<TaskResponse> searchByAppTaskReq(AppTaskRequest request);
     List<TaskResponse> searchMyTask(String openId);
     List<TaskResponse> searchNewTask(String openId);

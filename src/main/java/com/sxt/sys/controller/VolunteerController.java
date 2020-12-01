@@ -19,13 +19,6 @@ import java.util.List;
 public class VolunteerController {
     @Autowired
    private VolunteerService volunteerService;
-    @PostMapping("/list")
-    public DataGridView loadAllRole(@RequestBody VolunteerQueryRequest volunteerQueryRequest) {
-        List<Volunteer> volunteerByRequest = volunteerService.findVolunteerByRequest(volunteerQueryRequest);
-        long count = volunteerService.countVolunteerByRequest(volunteerQueryRequest);
-        return new DataGridView(count, volunteerByRequest);
-
-    }
     @PostMapping("/save")
     public DataGridView save(@RequestBody Volunteer volunteer) {
         volunteerService.saveVolunteer(volunteer);
