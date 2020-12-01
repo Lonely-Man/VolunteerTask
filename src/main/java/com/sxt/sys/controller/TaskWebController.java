@@ -7,6 +7,7 @@ import com.sxt.sys.Vo.TaskVo;
 import com.sxt.sys.Vo.UserVo;
 import com.sxt.sys.common.Constast;
 import com.sxt.sys.common.DataGridView;
+import com.sxt.sys.common.ResultObj;
 import com.sxt.sys.domain.Dept;
 import com.sxt.sys.domain.Task;
 import com.sxt.sys.domain.User;
@@ -58,5 +59,18 @@ public class TaskWebController {
     public DataGridView save(@Valid Task task) {
         taskService.saveTask(task);
         return DataGridView.builder().success(true).msg("成功").build();
+    }
+    /**
+     * 删除活动
+     */
+    @RequestMapping("/deleteTask")
+    public ResultObj deleteTask(Integer id) {
+        try {
+            this.taskService.removeById(id);
+            return ResultObj.DELETE_SUCCESS;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultObj.DELETE_ERROR;
+        }
     }
 }
